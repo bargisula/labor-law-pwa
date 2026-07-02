@@ -94,11 +94,15 @@ npx wrangler pages deploy dist --project-name labor-law-pwa   # 手動部署
 
 ## 函釋資料：如何增加/刪除（SOP）
 
-**新增某條的函釋：**
-1. 請 Codex（或其他工具）從勞動部勞動法令查詢系統抓該條函釋，輸出下述 schema 的 JSON
-2. 存到 `raw/interpretations/<法規代號>-<條號>.json`（例：`N0030001-24.json`）
-3. 跑 `npm run build-interp && npm run build`，確認 console 顯示該條則數
-4. commit + push（有設 CI token 就自動部署；否則手動跑上面的 deploy 指令）
+**新增某條的函釋（優先用現成爬蟲）：**
+1. 跑 Codex 寫的爬蟲（參數：勞動部法規 ID、條號、法規版本日期、輸出路徑）：
+   ```bash
+   node scripts/fetch-mol-article-interpretations.mjs FL014930 24 20240731 raw/interpretations/N0030001-24.json
+   ```
+   （FL014930 = 勞動基準法在勞動部系統的 ID；其他法規 ID 到 laws.mol.gov.tw 查）
+   爬蟲失效時退回請 Codex 手動抓，輸出下述 schema 存同樣位置
+2. 跑 `npm run build-interp && npm run build`，確認 console 顯示該條則數
+3. commit + push（有設 CI token 就自動部署；否則手動跑上面的 deploy 指令）
 
 **刪除**：刪掉對應的 raw 檔，重跑步驟 3-4（輸出區每次全量重建，不會殘留）。
 **更新**：直接覆蓋 raw 檔，重跑步驟 3-4。
