@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import meta from '../data/laws/index.json';
+import scenariosData from '../data/scenarios.json';
 ---
 <Layout title="勞基法查詢">
   <div class="search-box">
@@ -17,6 +18,13 @@ import meta from '../data/laws/index.json';
   <div id="results"></div>
 
   <section id="law-list">
+    <h2>常見情境</h2>
+    <div class="scenario-chips">
+      {scenariosData.scenarios.map((sc) => (
+        <a class="chip" href={`/scenarios/${sc.id}/`}>{sc.icon} {sc.title}</a>
+      ))}
+    </div>
+
     <h2>法規列表</h2>
     {meta.laws.map((law) => (
       <a class="card law-card" href={`/laws/${law.pcode}/`}>
@@ -42,6 +50,17 @@ import meta from '../data/laws/index.json';
   }
   #q:focus { border-color: var(--brand); }
   h2 { font-size: 1.1rem; }
+  .scenario-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .chip:active { border-color: var(--brand); }
   .law-card {
     display: flex;
     flex-direction: column;
@@ -148,9 +167,15 @@ import meta from '../data/laws/index.json';
     resultsEl.innerHTML = notice + hits
       .map((h) => {
         const d = docById.get(h.id as string);
-        const badge = d.kind === 'interp' ? '<span class="badge-interp">函釋</span>' : '';
+        const badge =
+          d.kind === 'interp' ? '<span class="badge-interp">函釋</span>'
+          : d.kind === 'scenario' ? '<span class="badge-scenario">情境</span>'
+          : '';
+        const title = d.kind === 'scenario'
+          ? escapeHtml(d.label)
+          : `<strong>${escapeHtml(d.lawName)}</strong> ${escapeHtml(d.label)}`;
         return `<a class="card result" href="${d.href}">
-          <div class="result-title">${badge}<strong>${escapeHtml(d.lawName)}</strong> ${escapeHtml(d.label)}</div>
+          <div class="result-title">${badge}${title}</div>
           <div class="result-snippet">${snippet(d.content, q)}</div>
         </a>`;
       })
@@ -163,7 +188,7 @@ import meta from '../data/laws/index.json';
   #results .small { font-size: 0.8rem; }
   .result { display: block; text-decoration: none; color: var(--text); }
   .result-title { margin-bottom: 0.25rem; }
-  .badge-interp {
+  .badge-interp, .badge-scenario {
     background: var(--brand);
     color: #fff;
     border-radius: 6px;
@@ -171,6 +196,7 @@ import meta from '../data/laws/index.json';
     font-size: 0.75rem;
     margin-right: 0.4rem;
   }
+  .badge-scenario { background: #b45309; }
   .result-snippet { font-size: 0.9rem; color: var(--muted); }
   mark { background: var(--highlight); color: inherit; border-radius: 3px; padding: 0 1px; }
 </style>

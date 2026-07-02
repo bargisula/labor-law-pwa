@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import scenariosData from '../../data/scenarios.json';
+import interpIndex from '../../data/interp/index.json';
+
+export async function getStaticPaths() {
+  const lawModules = import.meta.glob('../../data/laws/*.json', { eager: true });
+  const laws: Record<string, any> = {};
+  for (const [file, mod] of Object.entries(lawModules)) {
+    if (file.endsWith('index.json')) continue;
+    const law = (mod as any).default ?? mod;
+    laws[law.pcode] = law;
+  }
+
+  return (scenariosData as any).scenarios.map((sc: any) => {
+    // 正確性防線：引用的條文必須存在於法規資料，否則 build 直接失敗
+    const resolvedRefs = sc.refs.map((ref: any) => {
+      const law = laws[ref.pcode];
+      if (!law) throw new Error(`情境「${sc.title}」引用了未收錄的法規 ${ref.pcode}`);
+      const article = law.articles.find((a: any) => a.id === ref.article);
+      if (!article)
+        throw new Error(`情境「${sc.title}」引用了不存在的條文 ${ref.pcode} 第 ${ref.article} 條`);
+      return { ...ref, lawName: law.name, no: article.no, content: article.content };
+    });
+    return { params: { id: sc.id }, props: { sc, resolvedRefs } };
+  });
+}
+
+const { sc, resolvedRefs } = Astro.props;
+---
+<Layout title={`${sc.title}｜勞基法查詢`} description={sc.oneLiner}>
+  <nav class="breadcrumb"><a href="/">← 回首頁</a></nav>
+  <h1>{sc.icon} {sc.title}</h1>
+  <p class="one-liner">{sc.oneLiner}</p>
+
+  <section class="card guide">
+    <h2>重點導讀</h2>
+    <ul>
+      {sc.summary.map((line: string) => <li>{line}</li>)}
+    </ul>
+    <p class="disclaimer">以上為白話整理，以下方法條原文為準。</p>
+  </section>
+
+  <h2 class="refs-title">依據條文（官方原文）</h2>
+  {resolvedRefs.map((ref: any) => (
+    <article class="card ref">
+      <header>
+        <a class="ref-no" href={`/laws/${ref.pcode}/#art-${ref.article}`}>
+          {ref.lawName} {ref.no}
+        </a>
+        <span class="why">{ref.why}</span>
+      </header>
+      <p class="content">{ref.content}</p>
+      {(interpIndex as any)[ref.pcode]?.[ref.article] && (
+        <a class="interp-link" href={`/interp/${ref.pcode}/${ref.article}/`}>
+          📖 相關函釋 {(interpIndex as any)[ref.pcode][ref.article]} 則
+        </a>
+      )}
+    </article>
+  ))}
+</Layout>
+
+<style>
+  .breadcrumb { margin: 0.5rem 0; }
+  .breadcrumb a { text-decoration: none; }
+  h1 { font-size: 1.35rem; margin: 0.5rem 0 0.25rem; }
+  .one-liner { color: var(--muted); margin: 0 0 1rem; }
+  .guide h2 { font-size: 1rem; margin: 0 0 0.5rem; color: var(--brand); }
+  .guide ul { margin: 0; padding-left: 1.2rem; }
+  .guide li { margin-bottom: 0.4rem; }
+  .disclaimer { font-size: 0.8rem; color: var(--muted); margin: 0.75rem 0 0; }
+  .refs-title { font-size: 1.05rem; margin: 1.5rem 0 0.75rem; }
+  .ref header { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.5rem; }
+  .ref-no { font-weight: 700; text-decoration: none; }
+  .why { font-size: 0.85rem; color: var(--muted); }
+  .content { margin: 0; white-space: pre-line; }
+  .interp-link {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+    border: 1px solid var(--brand);
+    border-radius: 8px;
+    padding: 0.2rem 0.6rem;
+  }
+</style>

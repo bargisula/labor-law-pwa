@@ -52,6 +52,27 @@ async function main() {
     // 還沒有函釋資料，只索引法規
   }
 
+  // 常見情境（人工策展）：標題+關鍵詞+導讀進索引，口語查詢可直達情境頁
+  let scenarioCount = 0;
+  try {
+    const sc = JSON.parse(
+      await readFile(path.join(ROOT, 'src', 'data', 'scenarios.json'), 'utf8')
+    );
+    for (const s of sc.scenarios) {
+      docs.push({
+        id: `scenario:${s.id}`,
+        kind: 'scenario',
+        lawName: '常見情境',
+        label: s.title,
+        href: `/scenarios/${s.id}/`,
+        content: [s.oneLiner, ...(s.keywords || []), ...(s.summary || [])].join('。'),
+      });
+      scenarioCount++;
+    }
+  } catch {
+    // 還沒有情境資料
+  }
+
   const outDir = path.join(ROOT, 'public', 'data');
   await mkdir(outDir, { recursive: true });
   await writeFile(
@@ -59,7 +80,9 @@ async function main() {
     JSON.stringify({ fetchedAt: meta.fetchedAt, laws: meta.laws, docs }),
     'utf8'
   );
-  console.log(`✓ search.json：條文 ${docs.length - interpCount} 筆 + 函釋要旨 ${interpCount} 筆`);
+  console.log(
+    `✓ search.json：條文 ${docs.length - interpCount - scenarioCount} 筆 + 函釋要旨 ${interpCount} 筆 + 情境 ${scenarioCount} 筆`
+  );
 }
 
 main().catch((err) => {
