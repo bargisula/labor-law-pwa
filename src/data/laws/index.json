@@ -1,0 +1,23 @@
+{
+ "fetchedAt": "2026-07-02",
+ "laws": [
+  {
+   "pcode": "N0030001",
+   "name": "勞動基準法",
+   "updated": "2024-07-31",
+   "articleCount": 98
+  },
+  {
+   "pcode": "N0030002",
+   "name": "勞動基準法施行細則",
+   "updated": "2024-03-27",
+   "articleCount": 70
+  },
+  {
+   "pcode": "N0030006",
+   "name": "勞工請假規則",
+   "updated": "2025-12-09",
+   "articleCount": 13
+  }
+ ]
+}

@@ -1,0 +1,103 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = '勞動基準法條文與相關解釋查詢，離線可用' } = Astro.props;
+import { pwaInfo } from 'virtual:pwa-info';
+---
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0f766e" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <title>{title}</title>
+    {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+    <script src="/src/pwa.ts"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">⚖️ 勞基法查詢</a>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>
+        資料來源：<a href="https://law.moj.gov.tw/" target="_blank" rel="noopener">全國法規資料庫</a>。
+        本站僅供參考，實際權益以官方公告與主管機關解釋為準。
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --brand: #0f766e;
+    --brand-dark: #115e59;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --highlight: #fef3c7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #334155;
+      --highlight: #78350f;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  a { color: var(--brand); }
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--brand);
+    padding: 0.75rem 1rem;
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+  .brand {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+  }
+  .site-footer {
+    max-width: 720px;
+    margin: 2rem auto 0;
+    padding: 1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+</style>

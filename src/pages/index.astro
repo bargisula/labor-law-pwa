@@ -1,0 +1,167 @@
+---
+import Layout from '../layouts/Layout.astro';
+import meta from '../data/laws/index.json';
+---
+<Layout title="勞基法查詢">
+  <div class="search-box">
+    <input
+      id="q"
+      type="search"
+      placeholder="搜尋條文，例如：加班費、特休、資遣"
+      autocomplete="off"
+      enterkeyhint="search"
+    />
+  </div>
+
+  <div id="search-status" class="muted" hidden></div>
+  <div id="results"></div>
+
+  <section id="law-list">
+    <h2>法規列表</h2>
+    {meta.laws.map((law) => (
+      <a class="card law-card" href={`/laws/${law.pcode}/`}>
+        <strong>{law.name}</strong>
+        <span class="muted">共 {law.articleCount} 條・最新異動 {law.updated}</span>
+      </a>
+    ))}
+    <p class="muted small">資料更新日期：{meta.fetchedAt}</p>
+  </section>
+</Layout>
+
+<style>
+  .search-box { margin: 0.5rem 0 1rem; }
+  #q {
+    width: 100%;
+    font-size: 1.05rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+  }
+  #q:focus { border-color: var(--brand); }
+  h2 { font-size: 1.1rem; }
+  .law-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.8rem; }
+</style>
+
+<script>
+  import MiniSearch from 'minisearch';
+
+  // 中文全文搜尋：CJK 切成 2-gram（含單字），英數字照一般斷詞
+  function ngrams(text: string, withUnigrams: boolean): string[] {
+    const tokens: string[] = [];
+    const lower = text.toLowerCase();
+    for (const m of lower.matchAll(/[a-z0-9]+/g)) tokens.push(m[0]);
+    const cjkOnly = lower.replace(/[^一-鿿]/g, ' ');
+    for (const seg of cjkOnly.split(/\s+/)) {
+      if (!seg) continue;
+      if (seg.length === 1 || withUnigrams) tokens.push(...seg);
+      for (let i = 0; i < seg.length - 1; i++) tokens.push(seg.slice(i, i + 2));
+    }
+    return tokens;
+  }
+  // 索引含單字+雙字詞；嚴格查詢只用雙字詞（精準），放寬查詢連單字都比對
+  const tokenize = (text: string) => ngrams(text, true);
+  const strictTokenize = (text: string) => ngrams(text, false);
+
+  const input = document.getElementById('q') as HTMLInputElement;
+  const resultsEl = document.getElementById('results')!;
+  const statusEl = document.getElementById('search-status')!;
+  const lawListEl = document.getElementById('law-list')!;
+
+  let mini: InstanceType<typeof MiniSearch> | null = null;
+  const docById = new Map<string, any>();
+
+  async function ensureIndex() {
+    if (mini) return;
+    statusEl.hidden = false;
+    statusEl.textContent = '載入搜尋索引…';
+    const res = await fetch('/data/search.json');
+    const data = await res.json();
+    mini = new MiniSearch({
+      fields: ['content', 'lawName', 'no'],
+      storeFields: ['pcode', 'lawName', 'no', 'anchor', 'content'],
+      tokenize,
+      searchOptions: { combineWith: 'AND', prefix: false },
+    });
+    mini.addAll(data.docs);
+    for (const d of data.docs) docById.set(d.id, d);
+    statusEl.hidden = true;
+  }
+
+  function escapeHtml(s: string): string {
+    return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  }
+
+  /** 取出第一個關鍵字附近的片段並標亮 */
+  function snippet(content: string, query: string): string {
+    const idx = content.indexOf(query);
+    const start = idx >= 0 ? Math.max(0, idx - 30) : 0;
+    let text = content.slice(start, start + 120).replace(/\n/g, ' ');
+    if (start > 0) text = '…' + text;
+    if (start + 120 < content.length) text += '…';
+    let html = escapeHtml(text);
+    if (query.trim()) {
+      html = html.split(escapeHtml(query)).join(`<mark>${escapeHtml(query)}</mark>`);
+    }
+    return html;
+  }
+
+  let timer: ReturnType<typeof setTimeout>;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(runSearch, 150);
+  });
+
+  async function runSearch() {
+    const q = input.value.trim();
+    if (!q) {
+      resultsEl.innerHTML = '';
+      lawListEl.hidden = false;
+      return;
+    }
+    await ensureIndex();
+    // 先做精準比對；找不到時放寬成「含部分字」的相近搜尋（例：特休 → 特別休假）
+    let hits = mini!.search(q, { combineWith: 'AND', tokenize: strictTokenize }).slice(0, 30);
+    let loose = false;
+    if (hits.length === 0) {
+      hits = mini!.search(q, { combineWith: 'OR', tokenize }).slice(0, 20);
+      loose = true;
+    }
+    lawListEl.hidden = true;
+    if (hits.length === 0) {
+      resultsEl.innerHTML = '<p class="card">找不到符合的條文，換個關鍵字試試。</p>';
+      return;
+    }
+    const notice = loose
+      ? '<p class="muted small">無完全符合的條文，以下是相近結果：</p>'
+      : '';
+    resultsEl.innerHTML = notice + hits
+      .map((h) => {
+        const d = docById.get(h.id as string);
+        return `<a class="card result" href="/laws/${d.pcode}/#art-${d.anchor}">
+          <div class="result-title"><strong>${escapeHtml(d.lawName)}</strong> ${escapeHtml(d.no)}</div>
+          <div class="result-snippet">${snippet(d.content, q)}</div>
+        </a>`;
+      })
+      .join('');
+  }
+</script>
+
+<style is:global>
+  #results .muted { color: var(--muted); }
+  #results .small { font-size: 0.8rem; }
+  .result { display: block; text-decoration: none; color: var(--text); }
+  .result-title { margin-bottom: 0.25rem; }
+  .result-snippet { font-size: 0.9rem; color: var(--muted); }
+  mark { background: var(--highlight); color: inherit; border-radius: 3px; padding: 0 1px; }
+</style>
