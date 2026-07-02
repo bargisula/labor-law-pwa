@@ -15,7 +15,7 @@ export async function getStaticPaths() {
 const { law } = Astro.props;
 let lastChapter = '';
 ---
-<Layout title={`${law.name}｜勞基法查詢`} description={`${law.name}全文，共 ${law.articles.length} 條`}>
+<Layout title={`${law.name}｜勞動法查詢`} description={`${law.name}全文，共 ${law.articles.length} 條`}>
   <nav class="breadcrumb"><a href="/">← 回搜尋</a></nav>
   <h1>{law.name}</h1>
   <p class="muted">

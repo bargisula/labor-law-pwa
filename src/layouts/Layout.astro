@@ -3,7 +3,7 @@ interface Props {
   title: string;
   description?: string;
 }
-const { title, description = '勞動基準法條文與相關解釋查詢，離線可用' } = Astro.props;
+const { title, description = '勞動法規條文與相關解釋查詢，離線可用' } = Astro.props;
 import { pwaInfo } from 'virtual:pwa-info';
 ---
 <!doctype html>
@@ -21,7 +21,7 @@ import { pwaInfo } from 'virtual:pwa-info';
   </head>
   <body>
     <header class="site-header">
-      <a href="/" class="brand">⚖️ 勞基法查詢</a>
+      <a href="/" class="brand">⚖️ 勞動法查詢</a>
     </header>
     <main>
       <slot />

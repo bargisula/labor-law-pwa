@@ -3,6 +3,7 @@
  * browser-readable JSON file under public/data.
  *
  * Default target: Labor Standards Act, article 39.
+ * Optional 5th argument after output path: law name override.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -14,6 +15,7 @@ const BASE = 'https://laws.mol.gov.tw/FLAW/';
 const LAW_ID = process.argv[2] || 'FL014930';
 const ARTICLE_NO = process.argv[3] || '39';
 const LAW_DATE = process.argv[4] || '20240731';
+const LAW_NAME_ARG = process.argv[6] || '';
 
 const outputFile =
   process.argv[5] ||
@@ -63,6 +65,10 @@ function buildListUrl(page) {
   return `${BASE}FLAWDOC02.aspx?rtype=${rtype}&id=${LAW_ID}&flno=${ARTICLE_NO}&ldate=${LAW_DATE}${suffix}`;
 }
 
+function buildLawUrl() {
+  return `${BASE}FLAWDAT01.aspx?id=${LAW_ID}`;
+}
+
 async function fetchText(url) {
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
@@ -74,6 +80,16 @@ function extractDetailLinks(html) {
     const href = decodeEntities(match[1]);
     return href.startsWith('http') ? href : new URL(href, BASE).href;
   });
+}
+
+function parseLawName(text) {
+  return between(text, '\u6cd5\u898f\u540d\u7a31\uff1a', ['\u82f1', '\u516c(\u767c)\u5e03\u65e5\u671f\uff1a', '\u4fee\u6b63\u65e5\u671f\uff1a', '\u6cd5\u898f\u985e\u5225\uff1a']);
+}
+
+async function resolveLawName() {
+  if (LAW_NAME_ARG) return LAW_NAME_ARG;
+  const lawText = htmlToText(await fetchText(buildLawUrl()));
+  return parseLawName(lawText) || LAW_ID;
 }
 
 function parseDetail(text, sourceUrl) {
@@ -103,6 +119,7 @@ function parseDetail(text, sourceUrl) {
 }
 
 async function main() {
+  const lawName = await resolveLawName();
   const firstHtml = await fetchText(buildListUrl(1));
   const firstText = htmlToText(firstHtml);
   const total = Number((firstText.match(/共\s+(\d+)\s+筆/) || [])[1] || 0);
@@ -126,7 +143,7 @@ async function main() {
     fetchedAt: new Date().toISOString(),
     law: {
       id: LAW_ID,
-      name: '勞動基準法',
+      name: lawName,
       articleNo: ARTICLE_NO,
       articleTitle: `第 ${ARTICLE_NO} 條`,
       effectiveDate: LAW_DATE,

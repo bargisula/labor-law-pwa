@@ -18,6 +18,24 @@
    "name": "勞工請假規則",
    "updated": "2025-12-09",
    "articleCount": 13
+  },
+  {
+   "pcode": "N0030020",
+   "name": "勞工退休金條例",
+   "updated": "2019-05-15",
+   "articleCount": 69
+  },
+  {
+   "pcode": "N0030014",
+   "name": "性別平等工作法",
+   "updated": "2023-08-16",
+   "articleCount": 50
+  },
+  {
+   "pcode": "N0060001",
+   "name": "職業安全衛生法",
+   "updated": "2025-12-19",
+   "articleCount": 61
   }
  ]
 }
