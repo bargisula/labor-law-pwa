@@ -2,6 +2,16 @@
 import Layout from '../layouts/Layout.astro';
 import meta from '../data/laws/index.json';
 import scenariosData from '../data/scenarios.json';
+
+const scenarioGroups: { name: string; items: any[] }[] = [];
+for (const sc of scenariosData.scenarios as any[]) {
+  let g = scenarioGroups.find((x) => x.name === sc.group);
+  if (!g) {
+    g = { name: sc.group, items: [] };
+    scenarioGroups.push(g);
+  }
+  g.items.push(sc);
+}
 ---
 <Layout title="勞基法查詢">
   <div class="search-box">
@@ -19,11 +29,22 @@ import scenariosData from '../data/scenarios.json';
 
   <section id="law-list">
     <h2>常見情境</h2>
-    <div class="scenario-chips">
-      {scenariosData.scenarios.map((sc) => (
-        <a class="chip" href={`/scenarios/${sc.id}/`}>{sc.icon} {sc.title}</a>
-      ))}
-    </div>
+    {scenarioGroups.map((g) => (
+      <details class="scenario-group">
+        <summary>{g.name}<span class="count">{g.items.length}</span></summary>
+        <div class="scenario-chips">
+          {g.items.map((sc) => (
+            <a class="chip" href={`/scenarios/${sc.id}/`}>{sc.icon} {sc.title}</a>
+          ))}
+        </div>
+      </details>
+    ))}
+
+    <h2>試算器</h2>
+    <a class="card law-card" href="/calculators/labor-insurance/">
+      <strong>🧮 勞保給付試算</strong>
+      <span class="muted">生育、傷病、失能、老年、死亡給付金額與月數</span>
+    </a>
 
     <h2>法規列表</h2>
     {meta.laws.map((law) => (
@@ -50,7 +71,25 @@ import scenariosData from '../data/scenarios.json';
   }
   #q:focus { border-color: var(--brand); }
   h2 { font-size: 1.1rem; }
-  .scenario-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .scenario-group {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.6rem 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .scenario-group summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .scenario-group summary::marker { color: var(--brand); }
+  .scenario-group .count {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 0.85rem;
+    margin-left: 0.4rem;
+  }
+  .scenario-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
   .chip {
     background: var(--card);
     border: 1px solid var(--border);

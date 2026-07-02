@@ -1,0 +1,312 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="勞保給付試算｜勞基法查詢" description="勞工保險生育、傷病、失能、老年、死亡給付金額與月數試算">
+  <nav class="breadcrumb"><a href="/">← 回首頁</a></nav>
+  <h1>🧮 勞保給付試算</h1>
+  <p class="muted">選擇給付類別、輸入投保薪資，立即算出金額與給付月數。</p>
+
+  <div class="card form">
+    <label for="benefit-type">理賠（給付）類別</label>
+    <select id="benefit-type">
+      <option value="" selected disabled>請選擇…</option>
+      <option value="maternity">生育給付</option>
+      <option value="sickness">傷病給付（普通傷病）</option>
+      <option value="disability">失能給付（一次金）</option>
+      <option value="oldPension">老年年金（按月領）</option>
+      <option value="oldLump">老年給付（一次請領）</option>
+      <option value="funeral">死亡給付—喪葬津貼</option>
+      <option value="survivor">死亡給付—遺屬津貼（一次請領）</option>
+    </select>
+    <div id="fields"></div>
+  </div>
+
+  <div id="calc-result" class="card result" hidden>
+    <div class="amount-label">試算給付金額</div>
+    <div class="amount" id="r-amount"></div>
+    <div class="duration" id="r-duration"></div>
+    <div class="formula" id="r-formula"></div>
+    <div class="legal" id="r-legal"></div>
+    <ul class="notes" id="r-notes"></ul>
+  </div>
+
+  <div class="card disclaimer">
+    <strong>使用須知</strong>
+    <ul>
+      <li>本試算僅涵蓋<strong>勞工保險普通事故</strong>給付；職業災害給付自 2022 年 5 月起依《勞工職業災害保險及保護法》另有標準。</li>
+      <li>月投保薪資有分級上限（現行 <b>45,800 元</b>，如有調整以勞保局公告為準）；輸入超過上限會自動以上限計算。</li>
+      <li>結果僅供參考，實際核付金額以<a href="https://www.bli.gov.tw/" target="_blank" rel="noopener">勞動部勞工保險局</a>審核為準。</li>
+    </ul>
+  </div>
+</Layout>
+
+<script>
+  const SALARY_CAP = 45800; // 現行月投保薪資上限（分級表最高等級）
+
+  const fmt = (n: number) => Math.round(n).toLocaleString('zh-TW');
+
+  type FieldDef =
+    | { id: string; type: 'number'; label: string; placeholder?: string }
+    | { id: string; type: 'checkbox'; label: string }
+    | { id: string; type: 'select'; label: string; options: { value: string; label: string }[] };
+
+  interface Result {
+    amount: number;
+    duration: string;
+    formula: string;
+    notes: string[];
+  }
+
+  const salaryField = (label: string): FieldDef => ({
+    id: 'salary',
+    type: 'number',
+    label,
+    placeholder: '例如 36000',
+  });
+
+  const DISABILITY_DAYS: [number, number][] = [
+    [1, 1200], [2, 1000], [3, 840], [4, 740], [5, 640],
+    [6, 540], [7, 440], [8, 360], [9, 280], [10, 220],
+    [11, 160], [12, 100], [13, 60], [14, 40], [15, 30],
+  ];
+
+  const TYPES: Record<string, { legal: string; fields: FieldDef[]; compute: (v: any) => Result | null }> = {
+    maternity: {
+      legal: '勞工保險條例第 31、32 條',
+      fields: [
+        salaryField('分娩當月起前 6 個月平均月投保薪資（元）'),
+        { id: 'twins', type: 'checkbox', label: '雙生以上' },
+      ],
+      compute(v) {
+        if (!v.salary) return null;
+        const months = v.twins ? 4 : 2;
+        return {
+          amount: v.salary * months,
+          duration: `一次給付 ${months} 個月`,
+          formula: `${fmt(v.salary)} 元 × ${months} 個月`,
+          notes: [
+            '請領資格：參加保險滿 280 日後分娩（早產為滿 181 日）',
+            '雙生以上按比例增給（雙胞胎 4 個月）',
+          ],
+        };
+      },
+    },
+    sickness: {
+      legal: '勞工保險條例第 33、35 條',
+      fields: [
+        salaryField('住院前 6 個月平均月投保薪資（元）'),
+        { id: 'days', type: 'number', label: '不能工作天數（自第 4 天起算，前 3 天不給付）', placeholder: '例如 30' },
+        { id: 'senior', type: 'checkbox', label: '保險年資已滿 1 年' },
+      ],
+      compute(v) {
+        if (!v.salary || !v.days) return null;
+        const daily = (v.salary / 30) * 0.5;
+        const maxDays = v.senior ? 360 : 180;
+        const payDays = Math.min(v.days, maxDays);
+        return {
+          amount: daily * payDays,
+          duration: `每日給付 ${fmt(daily)} 元（月投保薪資 ÷ 30 × 50%），最長給付 ${v.senior ? 12 : 6} 個月${v.days > maxDays ? '（輸入天數已超過上限，以上限計）' : ''}`,
+          formula: `${fmt(v.salary)} ÷ 30 × 50% × ${payDays} 天`,
+          notes: [
+            '請領條件：普通傷病「住院診療」不能工作、未取得原有薪資，自不能工作之第 4 日起發給',
+            '年資未滿 1 年：最長 6 個月；年資滿 1 年：最長 12 個月',
+          ],
+        };
+      },
+    },
+    disability: {
+      legal: '勞工保險條例第 53 條、勞工保險失能給付標準',
+      fields: [
+        salaryField('診斷永久失能當月起前 6 個月平均月投保薪資（元）'),
+        {
+          id: 'level', type: 'select', label: '失能等級',
+          options: DISABILITY_DAYS.map(([lv, d]) => ({ value: String(d), label: `第 ${lv} 等級（${d} 日）` })),
+        },
+      ],
+      compute(v) {
+        if (!v.salary || !v.level) return null;
+        const days = Number(v.level);
+        return {
+          amount: (v.salary / 30) * days,
+          duration: `一次給付 ${days} 日（約 ${(days / 30).toFixed(1)} 個月）`,
+          formula: `${fmt(v.salary)} ÷ 30 × ${days} 日`,
+          notes: [
+            '失能等級由全民健保特約醫院出具失能診斷書，經勞保局審定',
+            '經審定「終身無工作能力」者是領失能年金（平均月投保薪資 × 年資 × 1.55%，最低 4,000 元），非一次金',
+          ],
+        };
+      },
+    },
+    oldPension: {
+      legal: '勞工保險條例第 58、58-1 條',
+      fields: [
+        salaryField('加保期間最高 60 個月之平均月投保薪資（元）'),
+        { id: 'years', type: 'number', label: '保險年資（年，可含小數）', placeholder: '例如 30' },
+      ],
+      compute(v) {
+        if (!v.salary || !v.years) return null;
+        const a = v.salary * v.years * 0.00775 + 3000;
+        const b = v.salary * v.years * 0.0155;
+        const best = Math.max(a, b);
+        return {
+          amount: best,
+          duration: '按月領取，領到身故為止（每月金額如上）',
+          formula: `擇優：A 式 ${fmt(v.salary)} × ${v.years} × 0.775% + 3,000 = ${fmt(a)}；B 式 ${fmt(v.salary)} × ${v.years} × 1.55% = ${fmt(b)}`,
+          notes: [
+            '請領年齡逐步調高中（目前 65 歲）；提前請領每提前 1 年減 4%（最多減 20%），延後每年增 4%（最多增 20%）',
+            '年資未滿 1 年部分按比例計算',
+          ],
+        };
+      },
+    },
+    oldLump: {
+      legal: '勞工保險條例第 59 條',
+      fields: [
+        salaryField('退保當月起前 3 年平均月投保薪資（元）'),
+        { id: 'years', type: 'number', label: '保險年資（年）', placeholder: '例如 20' },
+      ],
+      compute(v) {
+        if (!v.salary || !v.years) return null;
+        const y = v.years;
+        let months = y <= 15 ? y : 15 + (y - 15) * 2;
+        months = Math.min(months, 45);
+        return {
+          amount: v.salary * months,
+          duration: `一次給付 ${months} 個月（前 15 年每年 1 個月，第 16 年起每年 2 個月，上限 45 個月）`,
+          formula: `${fmt(v.salary)} 元 × ${months} 個月`,
+          notes: [
+            '限 1962 年（民國 51 年）12/31 以前出生、或 2009 年之前有勞保年資者可選一次請領',
+            '逾 60 歲繼續工作之年資最多再計 5 年，合併上限 50 個月（此處以 45 個月計）',
+          ],
+        };
+      },
+    },
+    funeral: {
+      legal: '勞工保險條例第 63-2 條',
+      fields: [salaryField('死亡當月起前 6 個月平均月投保薪資（元）')],
+      compute(v) {
+        if (!v.salary) return null;
+        return {
+          amount: v.salary * 5,
+          duration: '一次給付 5 個月（支出殯葬費之人請領）',
+          formula: `${fmt(v.salary)} 元 × 5 個月`,
+          notes: [
+            '被保險人本人死亡：喪葬津貼 5 個月；若無符合條件之遺屬，喪葬津貼為 10 個月',
+            '家屬死亡另有標準：父母/配偶 3 個月、年滿 12 歲子女 2.5 個月、未滿 12 歲子女 1.5 個月（勞保條例第 62 條）',
+          ],
+        };
+      },
+    },
+    survivor: {
+      legal: '勞工保險條例第 63-2 條',
+      fields: [
+        salaryField('死亡當月起前 6 個月平均月投保薪資（元）'),
+        {
+          id: 'seniority', type: 'select', label: '保險年資',
+          options: [
+            { value: '10', label: '未滿 1 年（10 個月）' },
+            { value: '20', label: '滿 1 年未滿 2 年（20 個月）' },
+            { value: '30', label: '滿 2 年以上（30 個月）' },
+          ],
+        },
+      ],
+      compute(v) {
+        if (!v.salary || !v.seniority) return null;
+        const months = Number(v.seniority);
+        return {
+          amount: v.salary * months,
+          duration: `一次給付 ${months} 個月`,
+          formula: `${fmt(v.salary)} 元 × ${months} 個月`,
+          notes: [
+            '遺屬津貼（一次請領）限 2009 年前有勞保年資者的遺屬可選擇',
+            '2009 年後初次加保者，遺屬僅得請領「遺屬年金」：平均月投保薪資 × 年資 × 1.55%（最低 3,000 元/月）',
+            '遺屬津貼與喪葬津貼可同時請領',
+          ],
+        };
+      },
+    },
+  };
+
+  const typeSel = document.getElementById('benefit-type') as HTMLSelectElement;
+  const fieldsEl = document.getElementById('fields')!;
+  const resultEl = document.getElementById('calc-result')!;
+
+  function renderFields() {
+    const t = TYPES[typeSel.value];
+    resultEl.hidden = true;
+    if (!t) { fieldsEl.innerHTML = ''; return; }
+    fieldsEl.innerHTML = t.fields
+      .map((f) => {
+        if (f.type === 'number')
+          return `<label for="f-${f.id}">${f.label}</label>
+            <input id="f-${f.id}" type="number" inputmode="numeric" min="0" placeholder="${f.placeholder || ''}">`;
+        if (f.type === 'checkbox')
+          return `<label class="check"><input id="f-${f.id}" type="checkbox"> ${f.label}</label>`;
+        return `<label for="f-${f.id}">${f.label}</label>
+          <select id="f-${f.id}">
+            <option value="" selected disabled>請選擇…</option>
+            ${f.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('')}
+          </select>`;
+      })
+      .join('');
+    fieldsEl.querySelectorAll('input,select').forEach((el) => el.addEventListener('input', calc));
+  }
+
+  function calc() {
+    const t = TYPES[typeSel.value];
+    if (!t) return;
+    const v: any = {};
+    let capped = false;
+    for (const f of t.fields) {
+      const el = document.getElementById(`f-${f.id}`) as HTMLInputElement;
+      if (f.type === 'checkbox') v[f.id] = el.checked;
+      else if (f.type === 'number') v[f.id] = Number(el.value) || 0;
+      else v[f.id] = el.value;
+    }
+    if (v.salary > SALARY_CAP) { v.salary = SALARY_CAP; capped = true; }
+    const r = t.compute(v);
+    if (!r) { resultEl.hidden = true; return; }
+    (document.getElementById('r-amount') as HTMLElement).textContent = `NT$ ${fmt(r.amount)}`;
+    (document.getElementById('r-duration') as HTMLElement).textContent = `📅 ${r.duration}`;
+    (document.getElementById('r-formula') as HTMLElement).textContent = `計算式：${r.formula}`;
+    (document.getElementById('r-legal') as HTMLElement).textContent = `法源：${t.legal}`;
+    const notes = [...r.notes];
+    if (capped) notes.unshift(`輸入薪資超過投保上限，已按 ${fmt(SALARY_CAP)} 元計算`);
+    (document.getElementById('r-notes') as HTMLElement).innerHTML = notes
+      .map((n) => `<li>${n}</li>`)
+      .join('');
+    resultEl.hidden = false;
+  }
+
+  typeSel.addEventListener('change', renderFields);
+</script>
+
+<style>
+  .breadcrumb { margin: 0.5rem 0; }
+  .breadcrumb a { text-decoration: none; }
+  h1 { font-size: 1.35rem; margin: 0.5rem 0 0.25rem; }
+  .muted { color: var(--muted); }
+  .form label { display: block; font-size: 0.9rem; margin: 0.75rem 0 0.25rem; font-weight: 600; }
+  .form label.check { font-weight: 400; }
+  .form :global(input[type='number']), .form :global(select), #benefit-type {
+    width: 100%;
+    font-size: 1.05rem;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .form :global(label) { display: block; font-size: 0.9rem; margin: 0.75rem 0 0.25rem; font-weight: 600; }
+  .form :global(label.check) { font-weight: 400; }
+  .result { border-color: var(--brand); }
+  .amount-label { font-size: 0.85rem; color: var(--muted); }
+  .amount { font-size: 2rem; font-weight: 800; color: var(--brand); margin: 0.1rem 0 0.4rem; }
+  .duration { font-weight: 600; margin-bottom: 0.5rem; }
+  .formula, .legal { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.25rem; }
+  .notes { font-size: 0.85rem; color: var(--muted); padding-left: 1.2rem; margin: 0.5rem 0 0; }
+  .notes li { margin-bottom: 0.25rem; }
+  .disclaimer { font-size: 0.85rem; }
+  .disclaimer ul { padding-left: 1.2rem; margin: 0.5rem 0 0; }
+  .disclaimer li { margin-bottom: 0.35rem; }
+</style>
