@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 22 * * 0' # 每週一 06:00 台灣時間（UTC 週日 22:00）
   workflow_dispatch: {}
+  push:
+    branches: [main] # 程式碼更新也自動重新部署
+    paths-ignore: ['README.md']
 
 permissions:
   contents: write
@@ -29,3 +32,15 @@ jobs:
             git commit -m "data: 法規資料自動更新 $(date +%F)"
             git push
           fi
+      # 需要 repo secret：CLOUDFLARE_API_TOKEN（權限 Cloudflare Pages: Edit）
+      # 沒設定 token 時此步驟自動跳過，網站就維持舊資料
+      - name: 建置並部署到 Cloudflare Pages
+        if: env.CF_TOKEN != ''
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 90b20a760ccf3485117fc56dc754e248
+        run: |
+          npm ci
+          npm run build
+          npx wrangler pages deploy dist --project-name labor-law-pwa

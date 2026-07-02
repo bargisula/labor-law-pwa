@@ -84,10 +84,20 @@ npm run build        # 建置靜態網站
 
 ## 部署（Cloudflare Pages，免費）
 
-1. 把這個 repo 推上 GitHub（private 也可以）
-2. Cloudflare Dashboard → Workers & Pages → Create → Pages → 連接 GitHub repo
-3. Build 設定：Framework preset 選 **Astro**（build command `npm run build`、輸出 `dist`）
-4. 完成後會得到 `https://<專案名>.pages.dev`，手機瀏覽器開啟 → 「加入主畫面」即可當 App 用
+- **正式網址：https://labor-law-pwa.pages.dev**（2026-07-02 首次部署）
+- GitHub repo：https://github.com/bargisula/labor-law-pwa
+- 部署方式：wrangler 直接上傳（`npx wrangler pages deploy dist --project-name labor-law-pwa`）
+- 手機使用：瀏覽器開啟網址 → 選單「加入主畫面」即可當 App 用
+
+### 自動部署（尚待完成一步）
+
+GitHub Actions 已設定：每週更新法規、每次 push 後自動建置部署。
+但需要在 GitHub repo 加一個 secret 才會生效（沒加時部署步驟自動跳過，網站維持舊版）：
+
+1. Cloudflare Dashboard → 右上頭像 → My Profile → **API Tokens** → Create Token
+   → 用「**Edit Cloudflare Workers**」模板或自訂：權限 **Cloudflare Pages: Edit**
+2. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+   - 名稱：`CLOUDFLARE_API_TOKEN`、值：剛才產生的 token
 
 ## 需求變更紀錄
 
