@@ -88,8 +88,8 @@ import meta from '../data/laws/index.json';
     const res = await fetch('/data/search.json');
     const data = await res.json();
     mini = new MiniSearch({
-      fields: ['content', 'lawName', 'no'],
-      storeFields: ['pcode', 'lawName', 'no', 'anchor', 'content'],
+      fields: ['content', 'lawName', 'label'],
+      storeFields: ['kind', 'lawName', 'label', 'href', 'content'],
       tokenize,
       searchOptions: { combineWith: 'AND', prefix: false },
     });
@@ -148,8 +148,9 @@ import meta from '../data/laws/index.json';
     resultsEl.innerHTML = notice + hits
       .map((h) => {
         const d = docById.get(h.id as string);
-        return `<a class="card result" href="/laws/${d.pcode}/#art-${d.anchor}">
-          <div class="result-title"><strong>${escapeHtml(d.lawName)}</strong> ${escapeHtml(d.no)}</div>
+        const badge = d.kind === 'interp' ? '<span class="badge-interp">函釋</span>' : '';
+        return `<a class="card result" href="${d.href}">
+          <div class="result-title">${badge}<strong>${escapeHtml(d.lawName)}</strong> ${escapeHtml(d.label)}</div>
           <div class="result-snippet">${snippet(d.content, q)}</div>
         </a>`;
       })
@@ -162,6 +163,14 @@ import meta from '../data/laws/index.json';
   #results .small { font-size: 0.8rem; }
   .result { display: block; text-decoration: none; color: var(--text); }
   .result-title { margin-bottom: 0.25rem; }
+  .badge-interp {
+    background: var(--brand);
+    color: #fff;
+    border-radius: 6px;
+    padding: 0 0.4rem;
+    font-size: 0.75rem;
+    margin-right: 0.4rem;
+  }
   .result-snippet { font-size: 0.9rem; color: var(--muted); }
   mark { background: var(--highlight); color: inherit; border-radius: 3px; padding: 0 1px; }
 </style>

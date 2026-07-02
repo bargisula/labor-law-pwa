@@ -1,0 +1,92 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const modules = import.meta.glob('../../../data/interp/*/*.json', { eager: true });
+  return Object.values(modules).map((mod) => {
+    const data = (mod as any).default ?? mod;
+    return { params: { pcode: data.pcode, article: data.article }, props: { data } };
+  });
+}
+
+const { data } = Astro.props;
+const active = data.items.filter((it: any) => !it.isRepealed);
+const repealed = data.items.filter((it: any) => it.isRepealed);
+---
+<Layout
+  title={`${data.lawName} ${data.articleTitle} 函釋｜勞基法查詢`}
+  description={`${data.lawName}${data.articleTitle}相關解釋令函，共 ${data.items.length} 則`}
+>
+  <nav class="breadcrumb">
+    <a href={`/laws/${data.pcode}/#art-${data.article}`}>← 回{data.articleTitle}條文</a>
+  </nav>
+  <h1>{data.lawName} {data.articleTitle} 相關函釋</h1>
+  <p class="muted">
+    共 {data.items.length} 則（有效 {active.length}、已廢止 {repealed.length}）・
+    擷取日期 {data.fetchedAt}・
+    <a href={data.sourceUrl} target="_blank" rel="noopener">官方查詢系統</a>
+  </p>
+
+  {[...active, ...repealed].map((it: any) => (
+    <details class="card interp" id={`rec-${it.recordNo}`}>
+      <summary>
+        <span class="meta">
+          {it.isRepealed && <span class="badge repealed">已廢止</span>}
+          <span class="date">{it.date}</span>
+          <span class="doc-no">{it.agency} {it.documentNo}</span>
+        </span>
+        <span class="gist">{it.gist}</span>
+      </summary>
+      <div class="body">
+        <p class="full-text">{it.fullText}</p>
+        {it.relatedArticles && <p class="related">相關法條：{it.relatedArticles}</p>}
+        {it.sourceUrl && (
+          <p class="src"><a href={it.sourceUrl} target="_blank" rel="noopener">官方原文 ↗</a></p>
+        )}
+      </div>
+    </details>
+  ))}
+</Layout>
+
+<script>
+  // 從搜尋結果帶 #rec-N 進來時，自動展開該則函釋
+  function openFromHash() {
+    const el = document.getElementById(location.hash.slice(1));
+    if (el instanceof HTMLDetailsElement) {
+      el.open = true;
+      el.scrollIntoView({ block: 'start' });
+    }
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+</script>
+
+<style>
+  .breadcrumb { margin: 0.5rem 0; }
+  .breadcrumb a { text-decoration: none; }
+  h1 { font-size: 1.25rem; margin: 0.5rem 0 0.25rem; }
+  .muted { color: var(--muted); font-size: 0.85rem; }
+  .interp { scroll-margin-top: 4rem; }
+  .interp:target { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand); }
+  summary { cursor: pointer; }
+  summary::marker { color: var(--brand); }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .gist { display: block; margin-top: 0.25rem; font-weight: 500; }
+  .badge.repealed {
+    background: #b91c1c;
+    color: #fff;
+    border-radius: 6px;
+    padding: 0 0.4rem;
+    font-size: 0.75rem;
+  }
+  .body { border-top: 1px solid var(--border); margin-top: 0.75rem; padding-top: 0.75rem; }
+  .full-text { white-space: pre-line; margin: 0 0 0.75rem; }
+  .related, .src { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0; }
+</style>

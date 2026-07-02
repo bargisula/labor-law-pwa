@@ -6,7 +6,7 @@
  *
  * 輸出：
  *   src/data/laws/[PCODE].json  — 各法規全文（build 時由頁面 import）
- *   public/data/search.json     — 全部條文攤平，給前端 MiniSearch 用
+ * 執行後記得再跑 build-search.mjs 更新搜尋索引（npm run fetch-laws 已串好）。
  */
 import { writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -59,11 +59,8 @@ function transform(raw, pcode) {
 
 async function main() {
   const lawsDir = path.join(ROOT, 'src', 'data', 'laws');
-  const publicDataDir = path.join(ROOT, 'public', 'data');
   await mkdir(lawsDir, { recursive: true });
-  await mkdir(publicDataDir, { recursive: true });
 
-  const searchDocs = [];
   const lawList = [];
 
   for (const pcode of TARGETS) {
@@ -85,27 +82,11 @@ async function main() {
       updated: law.updated,
       articleCount: law.articles.length,
     });
-    for (const a of law.articles) {
-      searchDocs.push({
-        id: `${pcode}:${a.id}`,
-        pcode,
-        lawName: law.name,
-        no: a.no,
-        anchor: a.id,
-        content: a.content,
-      });
-    }
     console.log(`✓ ${law.name}（${pcode}）${law.articles.length} 條，最新異動 ${law.updated}`);
   }
 
   const meta = { fetchedAt: new Date().toISOString().slice(0, 10), laws: lawList };
   await writeFile(path.join(lawsDir, 'index.json'), JSON.stringify(meta, null, 1), 'utf8');
-  await writeFile(
-    path.join(publicDataDir, 'search.json'),
-    JSON.stringify({ ...meta, docs: searchDocs }),
-    'utf8'
-  );
-  console.log(`✓ search.json 共 ${searchDocs.length} 筆條文`);
 }
 
 main().catch((err) => {

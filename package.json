@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "fetch-laws": "node scripts/fetch-laws.mjs",
+    "fetch-laws": "node scripts/fetch-laws.mjs && node scripts/build-search.mjs",
+    "build-interp": "node scripts/build-interpretations.mjs && node scripts/build-search.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"
