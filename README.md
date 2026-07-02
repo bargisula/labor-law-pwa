@@ -125,7 +125,7 @@ npx wrangler pages deploy dist --project-name labor-law-pwa   # 手動部署
       "documentNo": "…號函",      // 發文字號（必填）
       "date": "民國 108 年…",     // 發文日期
       "gist": "要旨…",            // 必填，進搜尋索引
-      "fullText": "全文…",        // 必填，函釋頁顯示
+      "fullText": "全文…",        // 選填（部分早期函釋官方僅有要旨），函釋頁顯示
       "relatedArticles": "…",     // 相關法條（選填）
       "isRepealed": false,        // 已廢止標記
       "sourceUrl": "官方原文網址"

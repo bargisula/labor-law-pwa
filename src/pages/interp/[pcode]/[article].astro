@@ -38,7 +38,9 @@ const repealed = data.items.filter((it: any) => it.isRepealed);
         <span class="gist">{it.gist}</span>
       </summary>
       <div class="body">
-        <p class="full-text">{it.fullText}</p>
+        {it.fullText
+          ? <p class="full-text">{it.fullText}</p>
+          : <p class="full-text no-text">本則官方資料庫僅收錄要旨，全文請點下方官方原文查閱。</p>}
         {it.relatedArticles && <p class="related">相關法條：{it.relatedArticles}</p>}
         {it.sourceUrl && (
           <p class="src"><a href={it.sourceUrl} target="_blank" rel="noopener">官方原文 ↗</a></p>
@@ -88,5 +90,6 @@ const repealed = data.items.filter((it: any) => it.isRepealed);
   }
   .body { border-top: 1px solid var(--border); margin-top: 0.75rem; padding-top: 0.75rem; }
   .full-text { white-space: pre-line; margin: 0 0 0.75rem; }
+  .no-text { color: var(--muted); font-style: italic; }
   .related, .src { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0; }
 </style>

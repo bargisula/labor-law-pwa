@@ -53,7 +53,8 @@ async function main() {
       throw new Error(`${file}: interpretations 空的`);
 
     const items = raw.interpretations.map((it, i) => {
-      for (const field of ['documentNo', 'gist', 'fullText']) {
+      // fullText 選填：部分早期函釋官方資料庫僅有要旨、無全文
+      for (const field of ['documentNo', 'gist']) {
         if (!it[field]) throw new Error(`${file} 第 ${i + 1} 筆缺 ${field}`);
       }
       return {
