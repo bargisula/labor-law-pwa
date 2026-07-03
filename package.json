@@ -8,7 +8,8 @@
     "build-interp": "node scripts/build-interpretations.mjs && node scripts/build-search.mjs",
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "fetch-interp-law": "node scripts/fetch-mol-law-interpretations.mjs"
   },
   "dependencies": {
     "@vite-pwa/astro": "^1.1.0",

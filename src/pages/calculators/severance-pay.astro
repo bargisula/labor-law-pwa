@@ -1,0 +1,171 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="資遣費試算｜勞動法查詢" description="輸入到職日、離職日與平均工資，自動判斷新舊制年資，試算資遣費金額">
+  <nav class="breadcrumb"><a href="/">← 回首頁</a></nav>
+  <h1>📦 資遣費試算</h1>
+  <p class="muted">輸入到職日、離職生效日與平均工資，自動判斷是否跨新舊制年資並試算金額。</p>
+
+  <div class="card form">
+    <label for="hire-date">到職日期</label>
+    <input id="hire-date" type="date">
+
+    <label for="leave-date">離職（資遣）生效日期</label>
+    <input id="leave-date" type="date">
+
+    <label for="wage">平均工資（元／月）</label>
+    <input id="wage" type="number" inputmode="numeric" min="0" placeholder="例如 40000">
+    <p class="hint">離職前 6 個月工資總額 ÷ 該 6 個月總日數 × 30；月薪穩定者可直接填月薪。</p>
+
+    <label class="check">
+      <input id="keep-old" type="checkbox" checked>
+      到職日在 2005/7/1 前，且當時「保留舊制年資」（未選擇一次轉入新制）
+    </label>
+  </div>
+
+  <div id="calc-result" class="card result" hidden>
+    <div class="amount-label">試算資遣費總額</div>
+    <div class="amount" id="r-amount"></div>
+    <div class="duration" id="r-duration"></div>
+
+    <div id="r-breakdown"></div>
+
+    <p class="formula" id="r-formula"></p>
+    <ul class="notes" id="r-notes"></ul>
+  </div>
+
+  <div class="card disclaimer">
+    <strong>使用須知</strong>
+    <ul>
+      <li>本試算依<strong>勞動基準法第 17 條</strong>（舊制）與<strong>勞工退休金條例第 12 條</strong>（新制）計算，僅適用「資遣」情形；不適用勞基法第 12 條（雇主不經預告終止）之情形。</li>
+      <li>2005 年 7 月 1 日勞退新制上路。到職日在此之前者，除非曾選擇「一次轉入新制」，否則舊制年資（到職日～2005/6/30）與新制年資（2005/7/1～離職日）分開計算後加總。</li>
+      <li>年資以到職日與離職日之實際日數換算（以 365 日為 1 年），畸零日數按比例計；正式核算以雇主與勞工局認定為準。</li>
+      <li>資遣費之外，雇主未依法預告資遣時，另應給付預告期間工資，請見<a href="/scenarios/layoff/">「被資遣了，我有什麼權益？」</a>情境頁。</li>
+    </ul>
+  </div>
+</Layout>
+
+<script>
+  const CUTOFF = new Date('2005-07-01T00:00:00');
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const fmt = (n: number) => Math.round(n).toLocaleString('zh-TW');
+
+  function daysBetween(a: Date, b: Date): number {
+    return Math.max(0, Math.round((b.getTime() - a.getTime()) / DAY_MS));
+  }
+
+  function yearsBetween(a: Date, b: Date): number {
+    return daysBetween(a, b) / 365;
+  }
+
+  const hireEl = document.getElementById('hire-date') as HTMLInputElement;
+  const leaveEl = document.getElementById('leave-date') as HTMLInputElement;
+  const wageEl = document.getElementById('wage') as HTMLInputElement;
+  const keepOldEl = document.getElementById('keep-old') as HTMLInputElement;
+  const resultEl = document.getElementById('calc-result')!;
+
+  function calc() {
+    const hire = hireEl.value ? new Date(hireEl.value) : null;
+    const leave = leaveEl.value ? new Date(leaveEl.value) : null;
+    const wage = Number(wageEl.value) || 0;
+
+    if (!hire || !leave || !wage || leave <= hire) {
+      resultEl.hidden = true;
+      return;
+    }
+
+    const treatAllNew = !keepOldEl.checked || hire >= CUTOFF;
+
+    let oldYears = 0;
+    let newYears = 0;
+    if (treatAllNew) {
+      newYears = yearsBetween(hire, leave);
+    } else {
+      oldYears = yearsBetween(hire, CUTOFF < leave ? CUTOFF : leave);
+      newYears = leave > CUTOFF ? yearsBetween(CUTOFF, leave) : 0;
+    }
+
+    const oldAmount = wage * oldYears; // 舊制：每滿 1 年 1 個月，無上限
+    const newAmountRaw = wage * newYears * 0.5; // 新制：每滿 1 年 1/2 個月
+    const newCap = wage * 6;
+    const newAmount = Math.min(newAmountRaw, newCap);
+    const newCapped = newAmountRaw > newCap;
+    const total = oldAmount + newAmount;
+
+    const breakdownEl = document.getElementById('r-breakdown')!;
+    const rows: string[] = [];
+    if (oldYears > 0) {
+      rows.push(
+        `<div class="row"><span>舊制年資 ${oldYears.toFixed(2)} 年</span><span>${fmt(oldAmount)} 元</span></div>`
+      );
+    }
+    rows.push(
+      `<div class="row"><span>新制年資 ${newYears.toFixed(2)} 年</span><span>${fmt(newAmount)} 元${newCapped ? '（已達 6 個月上限）' : ''}</span></div>`
+    );
+    breakdownEl.innerHTML = rows.join('');
+
+    (document.getElementById('r-amount') as HTMLElement).textContent = `NT$ ${fmt(total)}`;
+    (document.getElementById('r-duration') as HTMLElement).textContent = treatAllNew
+      ? '全部年資適用新制（每滿 1 年發給 1/2 個月平均工資，最高 6 個月）'
+      : '到職日早於新制上路，年資分段計算（舊制無上限＋新制上限 6 個月）';
+
+    const formulaParts: string[] = [];
+    if (oldYears > 0) formulaParts.push(`舊制：${fmt(wage)} × ${oldYears.toFixed(2)} 年 = ${fmt(oldAmount)} 元`);
+    formulaParts.push(
+      `新制：${fmt(wage)} × ${newYears.toFixed(2)} 年 × 1/2 = ${fmt(newAmountRaw)} 元${newCapped ? `，逾 6 個月上限 → 以 ${fmt(newCap)} 元計` : ''}`
+    );
+    (document.getElementById('r-formula') as HTMLElement).textContent = formulaParts.join('；');
+
+    const notes = [
+      '未滿 1 年之畸零年資，依實際日數比例折算（本試算已自動計入）',
+      '新制部分不論年資多長，最高以 6 個月平均工資為限（勞工退休金條例第 12 條）',
+      '舊制部分無上限，每滿 1 年發給 1 個月平均工資（勞動基準法第 17 條）',
+    ];
+    if (!treatAllNew) {
+      notes.unshift('若您到職時已選擇「一次轉入新制」，應取消上方勾選，全部年資均以新制計算');
+    }
+    (document.getElementById('r-notes') as HTMLElement).innerHTML = notes.map((n) => `<li>${n}</li>`).join('');
+
+    resultEl.hidden = false;
+  }
+
+  [hireEl, leaveEl, wageEl, keepOldEl].forEach((el) => el.addEventListener('input', calc));
+</script>
+
+<style>
+  .breadcrumb { margin: 0.5rem 0; }
+  .breadcrumb a { text-decoration: none; }
+  h1 { font-size: 1.35rem; margin: 0.5rem 0 0.25rem; }
+  .muted { color: var(--muted); }
+  .form label {
+    display: block;
+    font-size: 0.9rem;
+    margin: 0.75rem 0 0.25rem;
+    font-weight: 600;
+  }
+  .form label.check { font-weight: 400; display: flex; align-items: center; gap: 0.5rem; }
+  .form input[type='date'],
+  .form input[type='number'] {
+    width: 100%;
+    font-size: 1.05rem;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .form input[type='checkbox'] { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.3rem 0 0; }
+  .result { border-color: var(--brand); }
+  .amount-label { font-size: 0.85rem; color: var(--muted); }
+  .amount { font-size: 2rem; font-weight: 800; color: var(--brand); margin: 0.1rem 0 0.4rem; }
+  .duration { font-weight: 600; margin-bottom: 0.6rem; }
+  #r-breakdown { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.5rem 0; margin-bottom: 0.6rem; }
+  #r-breakdown .row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.2rem 0; }
+  .formula { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .notes { font-size: 0.85rem; color: var(--muted); padding-left: 1.2rem; margin: 0.5rem 0 0; }
+  .notes li { margin-bottom: 0.25rem; }
+  .disclaimer { font-size: 0.85rem; }
+  .disclaimer ul { padding-left: 1.2rem; margin: 0.5rem 0 0; }
+  .disclaimer li { margin-bottom: 0.35rem; }
+</style>
