@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-07-03T15:08:41.762Z",
+  "law": {
+    "id": "FL030634",
+    "name": "勞工退休金條例",
+    "articleNo": "58",
+    "articleTitle": "第 58 條",
+    "effectiveDate": "20190515",
+    "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL030634&flno=58",
+    "interpretationsUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC02.aspx?rtype=E%2f47%2f%e8%a1%8c%e6%94%bf%e5%87%bd%e9%87%8b%2cL%2f4%2f%e7%9b%b8%e9%97%9c%e6%b3%95%e6%a2%9d%2cH%2f2%2f%e6%ad%b7%e5%8f%b2%e6%b3%95%e6%a2%9d&id=FL030634&flno=58&ldate=20190515"
+  },
+  "total": 1,
+  "pageCount": 1,
+  "count": 1,
+  "interpretations": [
+    {
+      "recordNo": 1,
+      "issuingAgency": "行政院勞工委員會",
+      "documentNo": "勞動 4字第 0950109148 號令",
+      "date": "民國 95 年 12 月 15 日",
+      "source": "行政院公報 第 12 卷 241 期 34130 頁 臺北市政府公報 96 年春字第 4 期 16 頁",
+      "relatedArticles": "勞工退休準備金提撥及管理辦法 第 2 條 （民國 94 年 01 月 19 日版） 就業服務法 第 46 條 （民國 95 年 05 月 30 日版） 勞工退休金條例 第 58 條 （民國 93 年 06 月 30 日版）",
+      "gist": "勞工退休準備金提撥及管理辦法第 2 條規定所稱之「每月薪資總額」採 計範圍",
+      "subject": "",
+      "explanation": "",
+      "fullText": "核釋勞工退休金條例施行後，勞工退休準備金提撥及管理辦法第二條規定 所稱之「每月薪資總額」採計範圍，不包含事業單位已依法結清勞動基準 法保留年資之勞工、委任經理人、勞工退休金條例施行後新進之勞工，及 依就業服務法第四十六條第一項第八款至第十款規定受僱工作之外國人等 之工資。 共 1 筆 / 現在第 1 筆 ::: 隱私權政策及網站安全政策 政府網站資料開放宣告 勞動法令查詢系統每月週期更新，如需查詢最新資料，請點閱「 最新動態 」。 版權所有： 勞動部 建議最佳瀏覽環境：螢幕解析度 1024x768 以上 法規資料截止日：民國 115 年 05 月 31 日 勞動部總機：(02)8995-6866 傳真：(02)8590-2960 地址：104472 臺北市中山區松江路207號",
+      "isRepealed": false,
+      "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC03.aspx?datatype=etype&lc1=%5bc%5d%e5%8b%9e%e5%b7%a5%e9%80%80%e4%bc%91%e9%87%91%e6%a2%9d%e4%be%8b%2c58&cnt=1&recordno=1"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-07-03T15:08:03.221Z",
+  "law": {
+    "id": "FL030634",
+    "name": "勞工退休金條例",
+    "articleNo": "21",
+    "articleTitle": "第 21 條",
+    "effectiveDate": "20190515",
+    "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL030634&flno=21",
+    "interpretationsUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC02.aspx?rtype=E%2f47%2f%e8%a1%8c%e6%94%bf%e5%87%bd%e9%87%8b%2cL%2f4%2f%e7%9b%b8%e9%97%9c%e6%b3%95%e6%a2%9d%2cH%2f2%2f%e6%ad%b7%e5%8f%b2%e6%b3%95%e6%a2%9d&id=FL030634&flno=21&ldate=20190515"
+  },
+  "total": 1,
+  "pageCount": 1,
+  "count": 1,
+  "interpretations": [
+    {
+      "recordNo": 1,
+      "issuingAgency": "行政院勞工委員會",
+      "documentNo": "勞動 4字第 1010131690 號令",
+      "date": "民國 101 年 08 月 09 日",
+      "source": "行政院公報 第 18 卷 151 期 30259 頁",
+      "relatedArticles": "勞工退休金條例 第 21 條 （民國 96 年 07 月 04 日版）",
+      "gist": "勞工退休金條例第 21 條第 2 項規定之「出勤工作紀錄」，其內容應包 括勞工實際工作時間至分鐘為止之記載，俾利核算勞工工資及雇主應提繳 之勞工退休金數額，自 101 年 8 月 9 日生效",
+      "subject": "",
+      "explanation": "",
+      "fullText": "核釋勞工退休金條例第二十一條第二項所定「出勤工作紀錄」，其內容應 包含覈實記載勞工實際工作時間至分鐘為止，俾核算勞工之工資，據以作 為核計雇主應提繳之勞工退休金數額，並自即日生效。 共 1 筆 / 現在第 1 筆 ::: 隱私權政策及網站安全政策 政府網站資料開放宣告 勞動法令查詢系統每月週期更新，如需查詢最新資料，請點閱「 最新動態 」。 版權所有： 勞動部 建議最佳瀏覽環境：螢幕解析度 1024x768 以上 法規資料截止日：民國 115 年 05 月 31 日 勞動部總機：(02)8995-6866 傳真：(02)8590-2960 地址：104472 臺北市中山區松江路207號",
+      "isRepealed": false,
+      "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC03.aspx?datatype=etype&lc1=%5bc%5d%e5%8b%9e%e5%b7%a5%e9%80%80%e4%bc%91%e9%87%91%e6%a2%9d%e4%be%8b%2c21&cnt=1&recordno=1"
+    }
+  ]
+}
