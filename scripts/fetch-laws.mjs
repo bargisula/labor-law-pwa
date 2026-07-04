@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 從全國法規資料庫的社群鏡像抓取目標法規，轉成本站用的精簡 JSON。
  *
  * 資料來源：kong0107/mojLawSplitJSON（定期同步官方「全國法規資料庫」整包開放資料）
@@ -23,6 +23,7 @@ const TARGETS = [
   'N0030020', // 勞工退休金條例
   'N0030014', // 性別平等工作法
   'N0060001', // 職業安全衛生法
+  'N0090001', // 就業服務法
 ];
 
 function formatDate(yyyymmdd) {
@@ -96,3 +97,4 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+
