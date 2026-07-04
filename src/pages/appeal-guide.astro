@@ -1,0 +1,221 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const channels = [
+  {
+    id: 'mediation',
+    icon: '🤝',
+    title: '勞資爭議調解',
+    subtitle: '最常用、最快速的第一步',
+    desc: '向工作地點所在的縣市政府勞工局申請，由調解委員協助勞資雙方達成協議。免費、不需律師、7–20 個工作日內完成。',
+    steps: [
+      '準備好薪資單、勞動契約、通訊紀錄等證據',
+      '至縣市政府勞工局（可親辦、郵寄或線上申請）',
+      '填寫「勞資爭議調解申請書」，說明爭議事實',
+      '等待通知調解日期，雙方出席調解',
+      '調解成立者，書面調解書與法院確定判決有同等效力',
+    ],
+    note: '調解不成立時，可接著提起仲裁或民事訴訟，不影響權益。',
+    tag: '免費・快速',
+    tagColor: '#0f766e',
+  },
+  {
+    id: 'hotline',
+    icon: '📞',
+    title: '1955 勞工諮詢申訴專線',
+    subtitle: '不知道怎麼辦時，先打這支',
+    desc: '勞動部 24 小時免費諮詢熱線。可詢問法律疑問、申訴雇主違法行為，專員會引導後續流程。',
+    steps: [
+      '撥打 1955（24 小時、免費）',
+      '說明狀況，專員記錄後轉地方勞工局處理',
+      '後續由勞工局聯繫，必要時進行勞動檢查',
+    ],
+    note: '申訴雇主積欠工資、強迫加班、未保勞健保等違法行為時最常用。',
+    tag: '免費・24小時',
+    tagColor: '#0f766e',
+  },
+  {
+    id: 'inspection',
+    icon: '🔍',
+    title: '勞動檢查（向勞動部申訴）',
+    subtitle: '雇主違法事實明確時使用',
+    desc: '針對雇主違反勞基法的行為（如積欠工資、違法工時），可向勞動部或地方勞動局申請勞動檢查。雇主若違法，最高可處 100 萬元罰鍰。',
+    steps: [
+      '準備違法事實說明與佐證（薪資單、打卡紀錄、通訊截圖）',
+      '至勞動部「申訴案件查詢系統」線上申訴，或向勞工局書面申訴',
+      '勞動檢查員會前往雇主處查察',
+      '查察結果通知申訴人',
+    ],
+    note: '申訴人身份可要求保密，雇主不會知道是誰申訴。',
+    tag: '可匿名',
+    tagColor: '#b45309',
+  },
+  {
+    id: 'ula',
+    icon: '⚖️',
+    title: '不當勞動行為裁決',
+    subtitle: '工會幹部遭打壓、集體協商被拒',
+    desc: '工會幹部因工會活動遭解僱、降薪，或雇主拒絕與工會進行集體協商，可向勞動部「不當勞動行為裁決委員會」申請裁決。',
+    steps: [
+      '確認事實符合「不當勞動行為」定義',
+      '自知悉之日起 90 天內提出申請',
+      '向勞動部勞資關係司提交申請書',
+      '裁決委員會審理，必要時命令雇主回復原狀',
+    ],
+    note: '時效嚴格，知悉後 90 天必須申請，逾期不受理。',
+    tag: '時效 90 天',
+    tagColor: '#dc2626',
+  },
+  {
+    id: 'court',
+    icon: '🏛️',
+    title: '勞工法庭（民事訴訟）',
+    subtitle: '請求金錢賠償的最終手段',
+    desc: '調解不成立、或需要強制執行對方給付時，向地方法院勞工法庭提起訴訟。訴訟費用依請求金額計算，勞工可聲請訴訟救助減免費用。',
+    steps: [
+      '向勞動局申請調解（法院多要求先調解）',
+      '調解不成立取得「調解不成立證明書」',
+      '向工作地點或被告住所地的地方法院提起訴訟',
+      '可委任律師，或至地方法院「訴訟輔導科」免費諮詢',
+    ],
+    note: '月薪資 1.5 倍以下的請求，可聲請「小額訴訟」，程序更快速。',
+    tag: '最終手段',
+    tagColor: '#6d28d9',
+  },
+];
+
+const deadlines = [
+  { situation: '積欠工資（薪資、加班費）', limit: '5 年', basis: '勞基法第 127 條' },
+  { situation: '資遣費', limit: '5 年', basis: '民法消滅時效' },
+  { situation: '職業災害補償', limit: '2 年（自知悉日起）', basis: '勞基法第 61 條' },
+  { situation: '退休金（新制勞退）', limit: '5 年', basis: '勞工退休金條例第 31 條' },
+  { situation: '不當勞動行為裁決', limit: '90 天（自知悉日起）', basis: '勞資爭議處理法第 39 條' },
+  { situation: '勞資爭議調解', limit: '無硬性限制，建議越快越好', basis: '—' },
+];
+---
+
+<Layout title="申訴流程指引｜勞動法查詢" description="被欠薪、違法解僱、職場不公平對待，下一步怎麼做？完整申訴管道與時效說明。">
+  <nav class="breadcrumb"><a href="/">← 回首頁</a></nav>
+  <h1>📣 申訴流程指引</h1>
+  <p class="lead">知道自己的權利還不夠——這裡告訴你「下一步去哪裡、怎麼做」。</p>
+
+  <section class="tip card">
+    <strong>🚦 不確定要走哪條路？</strong>
+    先打 <a href="tel:1955">1955</a>，專員會告訴你適合的管道。大多數情況建議先從「勞資爭議調解」開始，免費且有法律效力。
+  </section>
+
+  <h2 class="section-title">五種申訴管道</h2>
+
+  {channels.map((ch) => (
+    <details class="card channel" id={ch.id}>
+      <summary>
+        <span class="ch-icon">{ch.icon}</span>
+        <span class="ch-info">
+          <span class="ch-title">{ch.title}</span>
+          <span class="ch-sub">{ch.subtitle}</span>
+        </span>
+        <span class="tag" style={`background:${ch.tagColor}`}>{ch.tag}</span>
+      </summary>
+      <div class="ch-body">
+        <p class="ch-desc">{ch.desc}</p>
+        <h3>步驟</h3>
+        <ol>
+          {ch.steps.map((s) => <li>{s}</li>)}
+        </ol>
+        {ch.note && <p class="note">💡 {ch.note}</p>}
+      </div>
+    </details>
+  ))}
+
+  <h2 class="section-title">重要時效一覽</h2>
+  <div class="card">
+    <p class="deadline-note">逾期可能喪失請求權，發現問題請盡早行動。</p>
+    <table>
+      <thead>
+        <tr><th>情況</th><th>時效</th><th>依據</th></tr>
+      </thead>
+      <tbody>
+        {deadlines.map((d) => (
+          <tr>
+            <td>{d.situation}</td>
+            <td class="limit">{d.limit}</td>
+            <td class="basis">{d.basis}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card resource">
+    <h3>相關資源</h3>
+    <ul>
+      <li><a href="https://www.mol.gov.tw/1607/1632/1633/" target="_blank" rel="noopener">勞動部—勞資爭議處理</a></li>
+      <li><a href="https://laborcomplaint.mol.gov.tw/" target="_blank" rel="noopener">勞動部申訴案件查詢系統</a></li>
+      <li><a href="https://www.judicial.gov.tw/tw/cp-1599-62-b8571-1.html" target="_blank" rel="noopener">司法院—訴訟輔導科（免費諮詢）</a></li>
+    </ul>
+  </div>
+</Layout>
+
+<style>
+  .breadcrumb { margin: 0.5rem 0; }
+  .breadcrumb a { text-decoration: none; }
+  h1 { font-size: 1.35rem; margin: 0.5rem 0 0.25rem; }
+  .lead { color: var(--muted); margin: 0 0 1rem; }
+  .tip { background: color-mix(in srgb, var(--brand) 8%, var(--card)); border-color: var(--brand); }
+  .section-title { font-size: 1.05rem; margin: 1.5rem 0 0.75rem; }
+
+  /* channel card */
+  .channel { padding: 0; overflow: hidden; }
+  .channel > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .channel > summary::-webkit-details-marker { display: none; }
+  .ch-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .ch-info { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; }
+  .ch-title { font-weight: 700; font-size: 1rem; }
+  .ch-sub { font-size: 0.82rem; color: var(--muted); }
+  .tag {
+    color: #fff;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ch-body {
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .ch-desc { margin: 0.75rem 0 0.5rem; color: var(--muted); font-size: 0.93rem; }
+  .ch-body h3 { font-size: 0.9rem; margin: 0.75rem 0 0.4rem; color: var(--brand); }
+  .ch-body ol { margin: 0; padding-left: 1.2rem; }
+  .ch-body li { margin-bottom: 0.35rem; font-size: 0.9rem; }
+  .note {
+    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--brand) 6%, var(--card));
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* deadlines table */
+  .deadline-note { margin: 0 0 0.75rem; font-size: 0.85rem; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  th { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+  td { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .limit { font-weight: 700; white-space: nowrap; }
+  .basis { color: var(--muted); font-size: 0.82rem; white-space: nowrap; }
+
+  /* resource */
+  .resource h3 { font-size: 0.95rem; margin: 0 0 0.5rem; }
+  .resource ul { margin: 0; padding-left: 1.2rem; }
+  .resource li { margin-bottom: 0.3rem; font-size: 0.9rem; }
+</style>
