@@ -9,7 +9,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "fetch-interp-law": "node scripts/fetch-mol-law-interpretations.mjs"
+    "fetch-interp-law": "node scripts/fetch-mol-law-interpretations.mjs",
+    "add-laws": "node scripts/add-laws.mjs",
+    "deploy": "astro build && npx wrangler pages deploy dist --project-name labor-law-pwa"
   },
   "dependencies": {
     "@vite-pwa/astro": "^1.1.0",

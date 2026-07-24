@@ -1,25 +1,42 @@
 # Copilot CLI Guidance（代號 Lucius）
 
-## 🚀 SKILL：labor-law-add-laws（新增勞動法規）
+## 🚀 SKILL 1：labor-law-add-laws（新增勞動法規，會自動 commit + push）
 
 觸發方式：在 labor-law-pwa repo 中說以下任一指令
-- 「新增法規 [法規名稱]」
-- 「加法規 [法規名稱]」
-- 「擴充 [法規名稱]」
-- 「我需要 [法規名稱]」
+- 「新增法規 [法規名稱]」「加法規 [法規名稱]」「擴充 [法規名稱]」
+- 「我需要 [法規名稱]」「幫我新增 [法規名稱] 到 PWA」
 - `/add-law [法規名稱]`
 
 **執行流程**
 1. 查 PCode（全國法規資料庫）、molId（勞動部法令查詢系統）
-2. 手動編輯 `scripts/fetch-laws.mjs` 的 TARGETS 與 `scripts/mol-laws.manifest.json`（沒有自動化腳本，這兩步是編輯設定檔）
-3. 依序跑 `npm run fetch-laws` → `node scripts/fetch-mol-law-interpretations.mjs {PCode}` → `npm run build-interp` → `npm run build`
-4. git commit（只加這次動到的檔案）
-5. **push 前先問 Alpha 或 Claude，等同意才 push。** push 後網站會不會更新，取決於 repo 是否設定 `CLOUDFLARE_API_TOKEN`（見 README「自動部署」章節）——沒設定就只是同步原始碼，網站不會變，回報時要講清楚
-6. 生成 `REPORT-{PCode}.md`：條文數、函釋數、build 結果、是否已 push、部署是否會生效
+2. 跑 `node scripts/add-laws.mjs --pcode {PCode} --name {法規名稱} --molId {molId} --versionDate {YYYYMMDD} --commit --push`
+   （腳本會自動更新兩個設定檔、抓條文、抓函釋、build、commit、push；任一步失敗會中止並印錯誤）
+   函釋量很大可加 `--skip-interp`
+3. 生成 `REPORT-{PCode}.md`：條文數、函釋數、build 結果、有沒有 push
 
-**預期耗時**：抓取 + build 約 3-5 分鐘；push/部署另外等確認。
+**Alpha 已明確同意這個 SKILL 的標準流程就是自動 push，不用每次都先問。**
+但 push 只會同步 GitHub 上的原始碼，**不會**讓網站更新（自動部署還沒設定 token）——
+網站要更新，push 完再視需要呼叫 **SKILL 2：labor-law-deploy**。
 
-**文檔**：見 `.github/labor-law-add-skill.md` 與 `PITFALLS-AND-IMPROVEMENTS.md`
+詳細文檔：`.github/labor-law-add-skill.md`
+
+## 🚀 SKILL 2：labor-law-deploy（手動部署到 Cloudflare）
+
+觸發方式：「部署」「手動部署」「部署上線」「推上 Cloudflare」「deploy」
+
+**執行流程**
+1. 確認本機已登入 wrangler（`npx wrangler whoami`；沒登入要請 Alpha 自己跑 `npx wrangler login`）
+2. 跑 `npm run deploy`（= build + `wrangler pages deploy dist --project-name labor-law-pwa`）
+3. 抽查一個法規頁面確認內容正確，回報部署網址
+
+這個 SKILL 會動到公開網站，執行前跟 Alpha/Claude 講一聲要部署了，完成後回報結果
+（不用像 SKILL 1 那樣每次先問過才做，但也不要完全靜默執行）。
+
+詳細文檔：`.github/labor-law-deploy-skill.md`
+
+---
+
+**共用參考**：`PITFALLS-AND-IMPROVEMENTS.md` 記錄 T-0020 當時踩過的坑與現在的做法。
 
 ---
 

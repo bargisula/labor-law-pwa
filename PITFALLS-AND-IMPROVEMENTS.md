@@ -207,23 +207,27 @@ X [ERROR] In a non-interactive environment, it's necessary to set a CLOUDFLARE_A
 - 沒有統一的自動化腳本，本文件當時提案的 `scripts/add-laws.mjs`（見下方「方案 A」）只是草稿，
   沒有被實作，但 SKILL 文件卻先寫成已完成
 
-**已修正的做法（2026-07-24，Claude 修正）**
-- 不建立新腳本，改成在 SKILL 文件裡如實描述現有的 4 個 npm 指令（`fetch-laws` →
-  `fetch-mol-law-interpretations.mjs` → `build-interp` → `build`），先確保「照著文件做真的能跑」
-- 同時把「自動 git commit & push」改成「commit 完先問 Alpha/Claude，同意才 push」——
-  之前這裡設計成全自動 push，跟任務協議「部署要人確認」衝突，這次一起修掉
-- 下方「方案 A / B」的自動化腳本與新 workflow 目前**不採用**，維持手動多步驟；
-  如果之後真的常態性新增法規、手動流程覺得煩，再回頭評估要不要做
+**修正過程（2026-07-24，Claude）**
+- 第一輪修正：先不建腳本，改成在 SKILL 文件裡如實描述現有的 4 個 npm 指令，並把「自動 push」
+  改成「commit 完先問過才 push」（避免虛構指令、避免未經同意就部署）
+- 第二輪：Alpha 明確表示這個 SKILL 就是要能一路跑到「抓下來、commit 上去」，不需要每次都問。
+  於是把下方「方案 A」的草稿改寫成非互動版（原稿是 `readline` 互動問答，Copilot CLI 沒辦法
+  回答互動式 prompt；改成吃 CLI 參數）並**真的建立了** `scripts/add-laws.mjs` + `npm run add-laws`，
+  用既有法規（勞動基準法 N0030001）跑過一次驗證可執行、可正確跳過重複項目
+- 部署另外拆成 **SKILL 2：labor-law-deploy**（`npm run deploy`，手動觸發），不跟 add-laws 綁在一起，
+  因為 push 到 GitHub 跟推上 Cloudflare 是兩件事、風險層級也不同（見
+  `.github/labor-law-add-skill.md`、`.github/labor-law-deploy-skill.md`）
 
 ---
 
-## 💭 當時想過的方案（未採用，僅留存參考）
+## 💭 當時想過的方案（歷史記錄）
 
-> 以下方案 A/B/C 是 T-0020 當下的構想草稿。**實際上沒有被建立**，且方案裡「自動 git push」的
-> 設計跟部署需要人確認的原則衝突，2026-07-24 已決定不採用，改成前面「坑 #7」修正後的手動流程。
-> 保留在這裡純粹是記錄曾經考慮過什麼、為什麼沒做。
+> 方案 A 的核心構想後來真的採用了（改寫成非互動版，見上方「已實作」說明與
+> `scripts/add-laws.mjs`）。方案 B/C 沒有採用（B 是重複建置，repo 已有等效 workflow；
+> C 的文檔建議部分已融入 SKILL 文件）。以下保留原始草稿供參考，程式碼細節跟實際
+> `scripts/add-laws.mjs` 不完全一樣（那版是互動式 prompt，正式版改成 CLI 參數）。
 
-### **方案 A：本機開發流程最小化（未建立）**
+### **方案 A：本機開發流程最小化（草稿，正式版見 `scripts/add-laws.mjs`）**
 
 構想中的 `scripts/add-laws.mjs`：
 
@@ -508,23 +512,19 @@ npx wrangler pages deploy dist/
 
 ---
 
-## 🎯 下次執行 T-0020 類任務的實際流程
+## 🎯 下次執行 T-0020 類任務的實際流程（2026-07-24 更新）
 
-（方案 A 的自動化腳本沒有建立，以下就是目前真的能跑的步驟——已同步到
-`.github/labor-law-add-skill.md`，兩邊保持一致）
+已建立 `scripts/add-laws.mjs` + `npm run add-laws`，一行指令做完抓取 + build + commit + push：
 
 1. 查詢法規 pcode（搜尋「{法規名稱} 全國法規資料庫」）
 2. 查詢 molId 與 versionDate（laws.mol.gov.tw）
-3. `scripts/fetch-laws.mjs` 的 TARGETS 加一行
-4. `scripts/mol-laws.manifest.json` 加一筆
-5. `npm run fetch-laws`
-6. `node scripts/fetch-mol-law-interpretations.mjs {PCode}`
-7. `npm run build-interp && npm run build`
-8. `git add`（只加這次動到的檔案）+ `git commit`
-9. **先問 Alpha/Claude 要不要 push，同意才 push**——push 後網站會不會更新，
-   取決於 `CLOUDFLARE_API_TOKEN` secret 有沒有設定
+3. ```bash
+   node scripts/add-laws.mjs --pcode {PCode} --name {法規名稱} --molId {molId} --versionDate {YYYYMMDD} --commit --push
+   ```
+   （函釋量大可加 `--skip-interp`；已存在的 pcode 會自動跳過設定檔重複寫入）
+4. 網站要不要一起更新，另外呼叫 `npm run deploy`（SKILL 2，見 `.github/labor-law-deploy-skill.md`）
 
-**預計耗時**：抓取 + build 約 5-10 分鐘；push/部署另外等確認，不算在內。
+**預計耗時**：抓取 + build 約 3-5 分鐘（含網路）；部署另外約 1 分鐘。
 
 ---
 
