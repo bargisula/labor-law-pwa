@@ -195,53 +195,37 @@ X [ERROR] In a non-interactive environment, it's necessary to set a CLOUDFLARE_A
 
 ---
 
-### **坑 #7：缺少「一鍵執行」的統一指令**
+### **坑 #7：缺少統一指令，且第一版 SKILL 文件虛構了不存在的腳本**
 
 **症狀**
-- 要新增法規需要執行多個步驟：
-  1. 更新 fetch-laws.mjs 的 TARGETS
-  2. 更新 mol-laws.manifest.json
-  3. `npm run fetch-laws`
-  4. `npm run fetch-interp-law -- N0020001` （重複 N 次）
-  5. `npm run build-interp`
-  6. `npm run build`
-  7. `git add/commit/push`
-  8. （希望有自動部署）
-
-- 每一步都需要人工確認，容易遺漏或出錯
+- 要新增法規需要執行多個步驟（更新兩個設定檔 + 跑 4 個 npm 指令 + commit）
+- 第一版 `.github/labor-law-add-skill.md` 寫著會跑 `npm run add-laws` / `scripts/add-laws.mjs`，
+  但這個腳本從頭到尾沒有真的建立過，`package.json` 也沒有這個 script——照著那份文件做會直接卡在
+  「找不到指令」
 
 **根本原因**
-- 沒有統一的自動化腳本
-- 流程複雜，缺乏 SOP
+- 沒有統一的自動化腳本，本文件當時提案的 `scripts/add-laws.mjs`（見下方「方案 A」）只是草稿，
+  沒有被實作，但 SKILL 文件卻先寫成已完成
 
-**解決方案**
-```
-✅ 新增 npm script：
-   "scripts": {
-     "add-laws": "node scripts/add-laws.mjs",
-     "ci": "npm run fetch-laws && npm run build-interp && npm run build"
-   }
-
-✅ 新建 scripts/add-laws.mjs：
-   - 交互式提示輸入新法規 pcode
-   - 自動驗證 pcode 有效性
-   - 自動更新 fetch-laws.mjs 和 mol-laws.manifest.json
-   - 執行 fetch-laws、fetch-interp-law、build-interp、build
-   - 生成 REPORT-*.md
-   - 可選：自動 git commit/push
-```
-
-**本次實際做法**
-- 手工執行每一步
-- 費時且容易出錯
+**已修正的做法（2026-07-24，Claude 修正）**
+- 不建立新腳本，改成在 SKILL 文件裡如實描述現有的 4 個 npm 指令（`fetch-laws` →
+  `fetch-mol-law-interpretations.mjs` → `build-interp` → `build`），先確保「照著文件做真的能跑」
+- 同時把「自動 git commit & push」改成「commit 完先問 Alpha/Claude，同意才 push」——
+  之前這裡設計成全自動 push，跟任務協議「部署要人確認」衝突，這次一起修掉
+- 下方「方案 A / B」的自動化腳本與新 workflow 目前**不採用**，維持手動多步驟；
+  如果之後真的常態性新增法規、手動流程覺得煩，再回頭評估要不要做
 
 ---
 
-## ✅ 改善方案：「一次到位」實作
+## 💭 當時想過的方案（未採用，僅留存參考）
 
-### **方案 A：本機開發流程最小化**
+> 以下方案 A/B/C 是 T-0020 當下的構想草稿。**實際上沒有被建立**，且方案裡「自動 git push」的
+> 設計跟部署需要人確認的原則衝突，2026-07-24 已決定不採用，改成前面「坑 #7」修正後的手動流程。
+> 保留在這裡純粹是記錄曾經考慮過什麼、為什麼沒做。
 
-新增 `scripts/add-laws.mjs`：
+### **方案 A：本機開發流程最小化（未建立）**
+
+構想中的 `scripts/add-laws.mjs`：
 
 ```javascript
 #!/usr/bin/env node
@@ -390,9 +374,12 @@ npm run add-laws
 
 ---
 
-### **方案 B：GitHub Actions 自動部署**
+### **方案 B：GitHub Actions 自動部署（其實已經存在，不用新建）**
 
-新建 `.github/workflows/deploy-on-push.yml`：
+當時以為要新建這個 workflow，但 repo 裡本來就有 `.github/workflows/update-laws.yml`
+做一樣的事（push 到 main 時跑 fetch-laws + build + `wrangler pages deploy`，前提是
+`CLOUDFLARE_API_TOKEN` secret 有設定）。不需要新建 `deploy-on-push.yml`，那會變成兩個
+workflow 搶著跑、重複部署。以下保留原始構想內容供參考：
 
 ```yaml
 name: Build & Deploy
@@ -521,64 +508,31 @@ npx wrangler pages deploy dist/
 
 ---
 
-## 📊 改善成效對比
+## 🎯 下次執行 T-0020 類任務的實際流程
 
-| 項目 | 舊方式 | 新方式 | 改善 |
-|---|---|---|---|
-| **人工步驟數** | 8 步 | 1 指令 | 87% ↓ |
-| **出錯風險** | 高（每步都可能出錯） | 低（腳本自動驗證） | 顯著 |
-| **新手友善度** | 需閱讀文檔 | 交互式引導 | 大幅提升 |
-| **部署時間** | 手工 5-10 分鐘 | 自動 ~2 分鐘 | 快 60% |
-| **可重複性** | 低（容易遺忘步驟） | 高（腳本一致） | 完美 |
+（方案 A 的自動化腳本沒有建立，以下就是目前真的能跑的步驟——已同步到
+`.github/labor-law-add-skill.md`，兩邊保持一致）
 
----
+1. 查詢法規 pcode（搜尋「{法規名稱} 全國法規資料庫」）
+2. 查詢 molId 與 versionDate（laws.mol.gov.tw）
+3. `scripts/fetch-laws.mjs` 的 TARGETS 加一行
+4. `scripts/mol-laws.manifest.json` 加一筆
+5. `npm run fetch-laws`
+6. `node scripts/fetch-mol-law-interpretations.mjs {PCode}`
+7. `npm run build-interp && npm run build`
+8. `git add`（只加這次動到的檔案）+ `git commit`
+9. **先問 Alpha/Claude 要不要 push，同意才 push**——push 後網站會不會更新，
+   取決於 `CLOUDFLARE_API_TOKEN` secret 有沒有設定
 
-## 🎯 下次執行 T-0020 類任務的最佳流程
-
-### **若改善已實施（推薦）**
-
-```bash
-cd C:\Users\alpha\labor-law-pwa
-npm run add-laws
-
-# 按提示輸入法規資訊，自動完成所有步驟
-# 最後自動 push 到 GitHub
-# GitHub Actions 自動構建 & 部署
-```
-
-**預計耗時**：3-5 分鐘（含抓取網絡時間）
-
-### **若改善未實施（本次做法）**
-
-1. 查詢法規 pcode（Google 或全國法規資料庫）
-2. `scripts/fetch-laws.mjs` 加 pcode
-3. `scripts/mol-laws.manifest.json` 加法規對照
-4. `npm run fetch-laws`
-5. `npm run fetch-interp-law -- PCODE` （逐個執行）
-6. `npm run build-interp && npm run build`
-7. `git add/commit/push`
-8. 等待 GitHub Actions 部署（或手工部署）
-
-**預計耗時**：10-15 分鐘
+**預計耗時**：抓取 + build 約 5-10 分鐘；push/部署另外等確認，不算在內。
 
 ---
 
-## 📝 建議實施優先順序
+## 📝 後續可考慮的改進（優先順序低，目前沒有急迫性）
 
-### Phase 1（立即實施，此次 T-0020 後）
-- ✅ 新增 `scripts/add-laws.mjs`
-- ✅ 更新 README.md 文檔
-- ✅ 添加 npm script `add-laws`
-
-### Phase 2（後續改進）
-- ⏳ 建立 GitHub Actions 部署流程
-- ⏳ 改進 `.gitignore`，排除自動生成檔案
-- ⏳ 擴展 `index.json` schema（加入 description、hasInterpretations 等）
-
-### Phase 3（可選）
-- ⏳ 添加 molId 自動查詢工具
-- ⏳ 建立法規更新日誌（變更追蹤）
-- ⏳ 添加單元測試（驗證新增法規的完整性）
+- 擴展 `index.json` schema（加入 description、hasInterpretations 等，用於未來的情境導讀/試算器）
+- molId 查詢目前全靠人工，如果之後法規新增頻率變高，可以考慮做查詢輔助工具
+- 建立法規更新日誌（變更追蹤）
 
 ---
 

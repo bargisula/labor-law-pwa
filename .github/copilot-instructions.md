@@ -1,6 +1,6 @@
 # Copilot CLI Guidance（代號 Lucius）
 
-## 🚀 SKILL：labor-law-add-laws（新增勞動法規自動化）
+## 🚀 SKILL：labor-law-add-laws（新增勞動法規）
 
 觸發方式：在 labor-law-pwa repo 中說以下任一指令
 - 「新增法規 [法規名稱]」
@@ -9,14 +9,15 @@
 - 「我需要 [法規名稱]」
 - `/add-law [法規名稱]`
 
-**執行流程** ✨
-1. 🔍 自動查詢 PCode（全國法規資料庫）
-2. 📋 自動查詢 molId（勞動部法令查詢系統）
-3. ⚙️ 自動執行 fetch-laws → fetch-interp-law → build
-4. 📤 自動 git commit & push
-5. ✅ 生成驗收報告（含 PWA 訪問 URL）
+**執行流程**
+1. 查 PCode（全國法規資料庫）、molId（勞動部法令查詢系統）
+2. 手動編輯 `scripts/fetch-laws.mjs` 的 TARGETS 與 `scripts/mol-laws.manifest.json`（沒有自動化腳本，這兩步是編輯設定檔）
+3. 依序跑 `npm run fetch-laws` → `node scripts/fetch-mol-law-interpretations.mjs {PCode}` → `npm run build-interp` → `npm run build`
+4. git commit（只加這次動到的檔案）
+5. **push 前先問 Alpha 或 Claude，等同意才 push。** push 後網站會不會更新，取決於 repo 是否設定 `CLOUDFLARE_API_TOKEN`（見 README「自動部署」章節）——沒設定就只是同步原始碼，網站不會變，回報時要講清楚
+6. 生成 `REPORT-{PCode}.md`：條文數、函釋數、build 結果、是否已 push、部署是否會生效
 
-**預期耗時**：3-5 分鐘（含網絡）
+**預期耗時**：抓取 + build 約 3-5 分鐘；push/部署另外等確認。
 
 **文檔**：見 `.github/labor-law-add-skill.md` 與 `PITFALLS-AND-IMPROVEMENTS.md`
 
