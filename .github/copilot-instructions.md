@@ -1,5 +1,27 @@
 # Copilot CLI Guidance（代號 Lucius）
 
+## 🚀 SKILL：labor-law-add-laws（新增勞動法規自動化）
+
+觸發方式：在 labor-law-pwa repo 中說以下任一指令
+- 「新增法規 [法規名稱]」
+- 「加法規 [法規名稱]」
+- 「擴充 [法規名稱]」
+- 「我需要 [法規名稱]」
+- `/add-law [法規名稱]`
+
+**執行流程** ✨
+1. 🔍 自動查詢 PCode（全國法規資料庫）
+2. 📋 自動查詢 molId（勞動部法令查詢系統）
+3. ⚙️ 自動執行 fetch-laws → fetch-interp-law → build
+4. 📤 自動 git commit & push
+5. ✅ 生成驗收報告（含 PWA 訪問 URL）
+
+**預期耗時**：3-5 分鐘（含網絡）
+
+**文檔**：見 `.github/labor-law-add-skill.md` 與 `PITFALLS-AND-IMPROVEMENTS.md`
+
+---
+
 ## TaskHub Protocol（跨 LLM 任務交換）
 
 共用任務交換資料夾位於 `C:\Users\alpha\Jarvis\taskhub\`（注意：不在這個 repo 裡，是另一個
