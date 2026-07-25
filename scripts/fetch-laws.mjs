@@ -17,6 +17,7 @@ const MIRROR = 'https://raw.githubusercontent.com/kong0107/mojLawSplitJSON/maste
 
 // Phase 1 目標法規。新增法規：加一行 pcode 即可。
 const TARGETS = [
+  'N0050001', // 勞工保險條例
   'N0030001', // 勞動基準法
   'N0030002', // 勞動基準法施行細則
   'N0030006', // 勞工請假規則

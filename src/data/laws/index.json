@@ -2,6 +2,12 @@
  "fetchedAt": "2026-07-25",
  "laws": [
   {
+   "pcode": "N0050001",
+   "name": "勞工保險條例",
+   "updated": "2026-01-21",
+   "articleCount": 104
+  },
+  {
    "pcode": "N0030001",
    "name": "勞動基準法",
    "updated": "2024-07-31",
