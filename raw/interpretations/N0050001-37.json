@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-07-25T03:17:24.733Z",
+  "law": {
+    "id": "FL014980",
+    "name": "勞工保險條例",
+    "articleNo": "37",
+    "articleTitle": "第 37 條",
+    "effectiveDate": "20260121",
+    "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=37",
+    "interpretationsUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC02.aspx?rtype=E%2f47%2f%e8%a1%8c%e6%94%bf%e5%87%bd%e9%87%8b%2cL%2f4%2f%e7%9b%b8%e9%97%9c%e6%b3%95%e6%a2%9d%2cH%2f2%2f%e6%ad%b7%e5%8f%b2%e6%b3%95%e6%a2%9d&id=FL014980&flno=37&ldate=20260121"
+  },
+  "total": 1,
+  "pageCount": 1,
+  "count": 1,
+  "interpretations": [
+    {
+      "recordNo": 1,
+      "issuingAgency": "行政院勞工委員會",
+      "documentNo": "勞保 3字第 0980019382 號函",
+      "date": "民國 98 年 07 月 17 日",
+      "source": "行政院勞工委員會",
+      "relatedArticles": "勞工保險條例 第 34、36、37 條 （民國 98 年 11 月 25 日版）",
+      "gist": "勞工保險被保險人因從事二份以上工作而往返就業場所間發生事故而致之 傷害，得視為職業傷害。但從事非本業或與本業專長無關之工作者，不適 用之",
+      "subject": "",
+      "explanation": "",
+      "fullText": "係指被保險人為執行職務，於前一就業場所逕赴另一就業場所之合理交通 途徑而言，不因被保險人係一般受僱勞工或職、漁業工會會員而有所差別 。另參加職業工會之被保險人於假日臨時從事非本業或與本業專長無關之 工作，於往返日常居、住處所及就業場所應經途中之事故，非屬前開得請 領職業災害保險給付之範圍。相關案件應依上開規定視個案事實認定。 共 1 筆 / 現在第 1 筆 ::: 隱私權政策及網站安全政策 政府網站資料開放宣告 勞動法令查詢系統每月週期更新，如需查詢最新資料，請點閱「 最新動態 」。 版權所有： 勞動部 建議最佳瀏覽環境：螢幕解析度 1024x768 以上 法規資料截止日：民國 115 年 06 月 30 日 勞動部總機：(02)8995-6866 傳真：(02)8590-2960 地址：104472 臺北市中山區松江路207號",
+      "isRepealed": false,
+      "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC03.aspx?datatype=etype&lc1=%5bc%5d%e5%8b%9e%e5%b7%a5%e4%bf%9d%e9%9a%aa%e6%a2%9d%e4%be%8b%2c37&cnt=1&recordno=1"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-07-25T03:12:40.350Z",
+  "law": {
+    "id": "FL014980",
+    "name": "勞工保險條例",
+    "articleNo": "3",
+    "articleTitle": "第 3 條",
+    "effectiveDate": "20260121",
+    "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=3",
+    "interpretationsUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC02.aspx?rtype=E%2f47%2f%e8%a1%8c%e6%94%bf%e5%87%bd%e9%87%8b%2cL%2f4%2f%e7%9b%b8%e9%97%9c%e6%b3%95%e6%a2%9d%2cH%2f2%2f%e6%ad%b7%e5%8f%b2%e6%b3%95%e6%a2%9d&id=FL014980&flno=3&ldate=20260121"
+  },
+  "total": 1,
+  "pageCount": 1,
+  "count": 1,
+  "interpretations": [
+    {
+      "recordNo": 1,
+      "issuingAgency": "行政院勞工委員會",
+      "documentNo": "勞保 2字第 0980140210 號函",
+      "date": "民國 98 年 04 月 17 日",
+      "source": "行政院勞工委員會",
+      "relatedArticles": "勞工保險條例 第 3、6、11 條 （民國 98 年 04 月 22 日版） 勞工保險條例施行細則 第 19 條 （民國 98 年 02 月 26 日版）",
+      "gist": "投保單位應依照勞工保險條例第 11 條規定，為外國籍勞工辦理加、退保",
+      "subject": "",
+      "explanation": "",
+      "fullText": "依勞工保險條例第 6 條第 1 項規定，受僱於 5 人以上工廠、公司、 行號等勞工，雇主應為其辦理參加勞工保險；同條第 3 項規定，第 1 項所稱勞工，包括在職外國籍員工。又同條例施行細則第 19 條規定，外 國籍員工如係依就業服務法或其他法規，經中央主管機關或相關目的事業 主管機關核准從事工作者，應檢附相關機關核准從事工作之證明文件影本 。查勞工保險係採申報制度，依同條例第 11 條規定，符合第 6 條規定 之勞工，各投保單位應於其所屬勞工到職、離職之當日列表通知保險人， 其保險效力之開始或停止，均自應為通知之當日起算。爰本案外國籍勞工 申報加、退保疑義，仍請依上開規定辦理。 共 1 筆 / 現在第 1 筆 ::: 隱私權政策及網站安全政策 政府網站資料開放宣告 勞動法令查詢系統每月週期更新，如需查詢最新資料，請點閱「 最新動態 」。 版權所有： 勞動部 建議最佳瀏覽環境：螢幕解析度 1024x768 以上 法規資料截止日：民國 115 年 06 月 30 日 勞動部總機：(02)8995-6866 傳真：(02)8590-2960 地址：104472 臺北市中山區松江路207號",
+      "isRepealed": false,
+      "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC03.aspx?datatype=etype&lc1=%5bc%5d%e5%8b%9e%e5%b7%a5%e4%bf%9d%e9%9a%aa%e6%a2%9d%e4%be%8b%2c3&cnt=1&recordno=1"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-07-25T03:19:03.005Z",
+  "law": {
+    "id": "FL014980",
+    "name": "勞工保險條例",
+    "articleNo": "52",
+    "articleTitle": "第 52 條",
+    "effectiveDate": "20260121",
+    "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=52",
+    "interpretationsUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC02.aspx?rtype=E%2f47%2f%e8%a1%8c%e6%94%bf%e5%87%bd%e9%87%8b%2cL%2f4%2f%e7%9b%b8%e9%97%9c%e6%b3%95%e6%a2%9d%2cH%2f2%2f%e6%ad%b7%e5%8f%b2%e6%b3%95%e6%a2%9d&id=FL014980&flno=52&ldate=20260121"
+  },
+  "total": 1,
+  "pageCount": 1,
+  "count": 1,
+  "interpretations": [
+    {
+      "recordNo": 1,
+      "issuingAgency": "內政部",
+      "documentNo": "台內社字第 739897 號函",
+      "date": "民國 66 年 07 月 14 日",
+      "source": "勞工保險行政解釋彙編（86年4月版）第 67 頁",
+      "relatedArticles": "勞工保險條例 第 63 條 （民國 62 年 04 月 25 日版）",
+      "gist": "被保險人因病須施行換腎手術，其享受醫療及現金給付範圍",
+      "subject": "",
+      "explanation": "",
+      "fullText": "被保險人住院施行換腎手術，捐贈腎臟者不論是否被保險人，其所捐腎臟 由捐贈者移植受腎人之過程，為進行該手術必須處理之一部分，自可視為 同一手術，其治療費用可由受腎人併報。至捐腎人因死亡或殘廢其賠償問 題，如捐腎者非被保險人自不得予任何給付。倘捐腎者為被保險人，其捐 腎係基於自願且非傷病而割除腎臟，應不給與喪失一側腎臟之殘廢給付， 惟可依照勞工保險條例第七十五條 (現修正為第六十三條) 之規定核付死 亡給付。 共 1 筆 / 現在第 1 筆 ::: 隱私權政策及網站安全政策 政府網站資料開放宣告 勞動法令查詢系統每月週期更新，如需查詢最新資料，請點閱「 最新動態 」。 版權所有： 勞動部 建議最佳瀏覽環境：螢幕解析度 1024x768 以上 法規資料截止日：民國 115 年 06 月 30 日 勞動部總機：(02)8995-6866 傳真：(02)8590-2960 地址：104472 臺北市中山區松江路207號",
+      "isRepealed": false,
+      "sourceUrl": "https://laws.mol.gov.tw/FLAW/FLAWDOC03.aspx?datatype=etype&lc1=%5bc%5d%e5%8b%9e%e5%b7%a5%e4%bf%9d%e9%9a%aa%e6%a2%9d%e4%be%8b%2c52&cnt=1&recordno=1"
+    }
+  ]
+}

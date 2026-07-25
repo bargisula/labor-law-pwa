@@ -136,7 +136,14 @@ async function main() {
 
   if (opts.commit) {
     console.log('\ngit add + commit...');
-    const files = ['scripts/fetch-laws.mjs', 'scripts/mol-laws.manifest.json', 'src/data/laws', 'public/data'];
+    const files = [
+      'scripts/fetch-laws.mjs',
+      'scripts/mol-laws.manifest.json',
+      'src/data/laws',
+      'src/data/interp',
+      'raw/interpretations',
+      'public/data',
+    ];
     execSync(`git add ${files.join(' ')}`, { cwd: ROOT, stdio: 'inherit' });
     execSync(`git commit -m "feat: 新增${name}（${pcode}）"`, { cwd: ROOT, stdio: 'inherit' });
     if (opts.push) {
