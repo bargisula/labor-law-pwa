@@ -79,7 +79,14 @@ async function main() {
   if (fetchLawsSrc.includes(`'${pcode}'`)) {
     console.log(`  scripts/fetch-laws.mjs 已經有 ${pcode}，跳過`);
   } else {
-    fetchLawsSrc = fetchLawsSrc.replace(/(const TARGETS = \[\n)/, `$1  '${pcode}', // ${name}\n`);
+    // 插入後只加自己的換行，不消耗原本 `[` 後面那個換行字元——
+    // 這個檔案在 Windows 上是 CRLF，之前用 /\[\n/ 硬吃掉換行會在 CRLF 檔案上完全不匹配，
+    // replace() 找不到匹配時靜默不做任何事，導致 TARGETS 沒真的被加，後面卻繼續往下跑。
+    const updated = fetchLawsSrc.replace(/(const TARGETS = \[)/, `$1\n  '${pcode}', // ${name}`);
+    if (updated === fetchLawsSrc || !updated.includes(`'${pcode}'`)) {
+      throw new Error(`寫入 scripts/fetch-laws.mjs 失敗：找不到 "const TARGETS = [" 或寫入後仍未包含 ${pcode}，請人工檢查該檔案格式`);
+    }
+    fetchLawsSrc = updated;
     await writeFile(fetchLawsPath, fetchLawsSrc, 'utf8');
     console.log(`  ✓ scripts/fetch-laws.mjs 加入 ${pcode}`);
   }
@@ -99,6 +106,16 @@ async function main() {
 
   console.log(`\n執行 npm run fetch-laws...`);
   execSync('npm run fetch-laws', { cwd: ROOT, stdio: 'inherit' });
+
+  const lawJsonPath = path.join(ROOT, 'src/data/laws', `${pcode}.json`);
+  try {
+    await readFile(lawJsonPath, 'utf8');
+  } catch {
+    throw new Error(
+      `fetch-laws 跑完了，但 src/data/laws/${pcode}.json 不存在——代表 ${pcode} 其實沒有真的被抓進去，` +
+        `不要往下 commit。先檢查 scripts/fetch-laws.mjs 的 TARGETS 是不是真的有這個 pcode。`
+    );
+  }
 
   if (!opts.skipInterp) {
     console.log(`\n抓取函釋（${pcode}）...`);
